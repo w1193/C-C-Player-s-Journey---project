@@ -4,6 +4,7 @@
 #include "Screen.c"
 #include <windows.h>
 #include <time.h>
+#pragma warning (disable:4996) 
 
 typedef struct _GOAL
 {
@@ -53,7 +54,7 @@ int Length; // 주인공 캐릭터 길이
 void Init() {
 	Player.CenterX = 3; //주인공 X 중심 좌표
 	Player.CenterY = 0; //주인공 Y 중심 좌표 
- 	Player.MoveX = 20; // 주인공 이동 ㅌ좌표 초기화
+ 	Player.MoveX = 20; // 주인공 이동 좌표 초기화
 	Player.Y = Player.MoveY = 22; // 주인공 이도 Y좌표 초기화
 	Player.X = Player.MoveX - Player.CenterX; //주인공 캐릭터 출력 좌표
 	Length = strlen(StrPlayer); //주인공 전체 길이 
@@ -97,11 +98,13 @@ void Render()
 	// 좌우에 벽을 만듬 (클리핑) 
 	
 	if(Player.X < 0) //왼쪽 클리핑 
-		{ScreenPrint(0, Player.MoveY, &StrPlayer[Player.X*-1]);}
+	{
+			ScreenPrint(0, Player.MoveY, &StrPlayer[Player.X*(-1)]);
+	}
 	else if(Player.MoveX + (Length - ((Player.MoveX + Player.CenterX + 1) > 79 )))
 	{
 		strncat(string, StrPlayer, Length - ((Player.MoveX + Player.CenterX + 1) -79));	
-	 	ScreenPrint(Player.X, Player.Y, StrPlayer);
+	 	ScreenPrint(Player.X, Player.Y, string); // (양소희) StrPlayer -> string 
 	 }else{
 		ScreenPrint(Player.X, Player.Y, StrPlayer);
 	}
@@ -140,7 +143,7 @@ int main (void){
 					Player.MoveX--; 
 					Remain =  Length - (Player.CenterX + 1); // 남은길이 = 전체 길이 - (중심좌표 + 1)
 					if(Player.MoveX + Remain > 79 || Player.MoveX - Player.CenterX < 0)
-					Player.MoveX++;
+					Player.MoveX--; // (양소희) Player.MoveX++ -> Player.MoveX--
 					Player.X = Player.MoveX - Player.CenterX;
 					break;
 				case '2' :
