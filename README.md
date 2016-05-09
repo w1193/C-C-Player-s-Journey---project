@@ -10,3 +10,13 @@ and this project will be made in Korean
 ```
 기초적인 변수명
 ```
+
+
+#Mini Game
+    ```
+    * Catch Ball
+      - For player :
+          MoveX, MoveY, CenterX, CenterY, X, Y
+      - For Ball :
+          bMoveX, bMoveY ....
+    ```
