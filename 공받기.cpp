@@ -4,7 +4,16 @@
 #include "Screen.c"
 #include <windows.h>
 #include <time.h>
-#pragma warning (disable:4996) 
+
+
+enum ControlKeys
+{
+    SPACE = 32,
+    LEFT = 75,
+    RIGHT = 77
+};
+
+
 
 typedef struct _GOAL
 {
@@ -46,31 +55,48 @@ typedef struct _Position
 GOAL Goal;
 BALL Ball;
 PLAYER Player;
-char StrPlayer[] = {"|__O__|"}; //캐릭터
+char strPlayer[] = {"|__●__|"}; //캐릭터
 int Length; // 주인공 캐릭터 길이
-
 // 초기화 
 
 void Init() {
+	
 	Player.CenterX = 3; //주인공 X 중심 좌표
 	Player.CenterY = 0; //주인공 Y 중심 좌표 
- 	Player.MoveX = 20; // 주인공 이동 좌표 초기화
+ 	Player.MoveX = 20; // 주인공 이동 ㅌ좌표 초기화
 	Player.Y = Player.MoveY = 22; // 주인공 이도 Y좌표 초기화
 	Player.X = Player.MoveX - Player.CenterX; //주인공 캐릭터 출력 좌표
-	Length = strlen(StrPlayer); //주인공 전체 길이 
+	Length = strlen(strPlayer); //주인공 전체 길이 
 
 	
 	Ball.ReadyB = 1;
 	Ball.bMoveX = Player.MoveX;
 	Ball.bMoveY = Player.MoveY - 1;
 	Ball.MoveTime = 100;
+	
+	int gLength, i;
+	
+	Goal.gMoveX = 20;
+	Goal.gMoveY = 2;
+	Goal.gLength = 1;
+	Goal.MoveTime = 100;
+	Goal.OldTime = clock();
+	Goal.gDistance = 1;
+	gLength = Goal.gLength*2 + 1;
+
+	for(i = 0; i < gLength; i++){
+		Goal.gLineX[i] = Goal.gMoveX + 2 * (i + 1);
+	}
 }
 
 // 데이터 갱신
 
 void Update()
-{
+{	
+	int BallCount = 0;
 	clock_t CurTime = clock();
+	int gLength = Goal.gLength * 2 + 1;
+	int i;
 	if(Ball.ReadyB == 0) {//이동중일 경우
 		if ((CurTime - Ball.OldTime) > Ball.MoveTime) 
 	 		{
@@ -85,6 +111,55 @@ void Update()
 	 		}else{
 		Ball.bMoveX = Player.MoveX;
 	}
+	
+	if((CurTime - Goal.OldTime) > Goal.MoveTime)
+	{
+		Goal.OldTime = CurTime;
+		if(Goal.gMoveX + Goal.gDistance >= 0 && ((Goal.gLineX[gLength - 1] + 3) + Goal.gDistance) <= 79)
+		{
+			Goal.gMoveX += Goal.gDistance;
+			for(i = 0; i < gLength; i++)
+			{
+				Goal.gLineX[i] = Goal.gMoveX + 2 * (i + 1);
+			}
+		}else{
+			Goal.gDistance = Goal.gDistance * (-1); // 방향바꾸기 
+		}
+	}
+	
+	if(Ball.ReadyB == 0) //공이동중 
+	{
+		if((CurTime - Ball.OldTime) > Ball.MoveTime){
+			if(Ball.bMoveY - 1 > 0){
+				Ball.bMoveY--;
+				Ball.OldTime = CurTime;
+				
+				//골대의라인과 충돌 
+				if(Ball.bMoveX >= Goal.gLineX[0] && Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1]){
+					if(Ball.bMoveY <= Goal.gMoveY){//공 초기화 
+						Ball.ReadyB = 1;
+						Ball.bMoveX = Player.MoveX;
+						Ball.bMoveY = Player.MoveY - 1;
+						BallCount++; //득점 
+					}
+					//골대 충돌 
+				}else if((Ball.bMoveX >= Goal.gLineX[0] - 2 && Ball.bMoveX <= Goal.gLineX[0] - 1) || (Ball.bMoveX + 1 >= Goal.gLineX[0] - 2) && (Ball.bMoveX + 1 <= Goal.gLineX[0] - 1) || (Ball.bMoveX >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX <= Goal.gLineX[gLength - 1] + 3) || (Ball.bMoveX + 1 >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1] + 3)){
+					if(Ball.bMoveY <= Goal.gMoveY){
+						Ball.ReadyB = 1;
+						Ball.bMoveX = Player.MoveX;
+						Ball.bMoveY = Player.MoveY - 1;
+					}
+				}else {
+					Ball.ReadyB = 1;
+					Ball.bMoveX = Player.MoveX;
+					Ball.bMoveY = Player.MoveY - 1;
+				}
+				
+			}
+		}else{
+			Ball.bMoveX = Player.MoveX;
+		}
+	 } 
 }
 
 // 출력
@@ -93,26 +168,38 @@ void Render()
 {
 	char string[100] = {0};
 	ScreenClear();
-	
+	int gLength, i;
 	// 출력 시작
+	
 	// 좌우에 벽을 만듬 (클리핑) 
 	
-	if(Player.X < 0) //왼쪽 클리핑 
+	if(Player.X < 0) 
+		ScreenPrint(0, Player.MoveY, &strPlayer[Player.X * (-1)]);
+	else if(Player.MoveX + (Length - Player.MoveX + Player.CenterX + 1) > 79)
 	{
-			ScreenPrint(0, Player.MoveY, &StrPlayer[Player.X*(-1)]);
-	}
-	else if(Player.MoveX + (Length - ((Player.MoveX + Player.CenterX + 1) > 79 )))
-	{
-		strncat(string, StrPlayer, Length - ((Player.MoveX + Player.CenterX + 1) -79));	
-	 	ScreenPrint(Player.X, Player.Y, string); // (양소희) StrPlayer -> string 
+		strncat(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) -79));	
+	 	ScreenPrint(Player.X, Player.Y, string);
 	 }else{
-		ScreenPrint(Player.X, Player.Y, StrPlayer);
+		ScreenPrint(Player.X, Player.Y, strPlayer);
 	}
-
+	
+	ScreenPrint(Ball.bMoveX, Ball.bMoveY, "○");
 	sprintf(string, "주인공 이동좌표 : %d, %d", Player.MoveX, Player.Y);
 	ScreenPrint(0, 0, string);
 	
+	
+	//골대 출력 
+	
+	ScreenPrint(Goal.gMoveX, Goal.gMoveY, "ㅁ");
+	gLength = Goal.gLength * 2 + 1;
+	
+	for(i = 0; i < gLength; i++)
+		ScreenPrint(Goal.gLineX[i], Goal.gMoveY, "ㅡ");
+		
+	ScreenPrint(Goal.gLineX[gLength - 1] + 2, Goal.gMoveY, "ㅁ");
+	
 	//출력 끝
+		
 	
 	ScreenFlipping(); 
  }
@@ -139,21 +226,25 @@ int main (void){
 				break;
 			switch(Key)
 			{
-				case '1' :
+				case LEFT :
+					if(Player.MoveX > 0){
 					Player.MoveX--; 
 					Remain =  Length - (Player.CenterX + 1); // 남은길이 = 전체 길이 - (중심좌표 + 1)
 					if(Player.MoveX + Remain > 79 || Player.MoveX - Player.CenterX < 0)
-					Player.MoveX--; // (양소희) Player.MoveX++ -> Player.MoveX--
+					Player.MoveX--;
 					Player.X = Player.MoveX - Player.CenterX;
+					}
 					break;
-				case '2' :
+				case RIGHT :
+					if(Player.MoveX + 1 < 79){
 					Player.MoveX++;
 					Remain = Length - (Player.CenterX + 1);
 					if(Player.MoveX + Remain >79 || Player.MoveX - Player.CenterX < 0)
 						Player.MoveX++;
 					Player.X = Player.MoveX - Player.CenterX;
+					}
 					break;
-				case '3' :
+				case SPACE :
 					if(Ball.ReadyB)
 					{
 						Ball.bMoveX = Player.MoveX;
