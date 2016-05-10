@@ -1,4 +1,4 @@
-##This Project is made by JNU(Jeju National University) students.
+#This Project is made by JNU(Jeju National University) students.
 
 
 This project is for learning about C / Cpp programming, and we are just beginners, So This Project's code will be very simple.
@@ -12,7 +12,7 @@ and this project will be made in Korean
 ```
 
 
-#Mini Game
+##Mini Game
     ```
     * Catch Ball
       - For player :
