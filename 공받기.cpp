@@ -78,7 +78,7 @@ void Init() {
 	
 	Goal.gMoveX = 20;
 	Goal.gMoveY = 2;
-	Goal.gLength = 1;
+	Goal.gLength = 2;
 	Goal.MoveTime = 100;
 	Goal.OldTime = clock();
 	Goal.gDistance = 1;
@@ -104,12 +104,12 @@ void Update()
 			 if(Ball.bMoveY - 1 > 0){
 	 			Ball.bMoveY--;
 	 			Ball.OldTime = CurTime;
-		 		}else{
-			 		Ball.ReadyB = 1;
-			 		Ball.bMoveX = Player.MoveX;
-			 		Ball.bMoveY = Player.MoveY - 1;
-			 	}
-              }
+		 	}else{
+			 	Ball.ReadyB = 1;
+			 	Ball.bMoveX = Player.MoveX;
+			 	Ball.bMoveY = Player.MoveY - 1;
+			  }
+             }
 		}else{
 		Ball.bMoveX = Player.MoveX;
 	}
@@ -138,31 +138,32 @@ void Update()
 				
 				//골대의라인과 충돌 
 				if(Ball.bMoveX >= Goal.gLineX[0] && Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1]){
-					if(Ball.bMoveY <= Goal.gMoveY){//공 초기화 
+					if(Ball.bMoveY <= Goal.gMoveY) //공 초기화 
 						Ball.ReadyB = 1;
-						Ball.bMoveX = Player.MoveX;
 						Ball.bMoveY = Player.MoveY - 1;
-						BallCount++; //득점 
+						Ball.bMoveX = Player.MoveX;
+						BallCount++; //득점
+						printf("성공!");
 					}
 					//골대 충돌 
-				}else if((Ball.bMoveX >= Goal.gLineX[0] - 2 && Ball.bMoveX <= Goal.gLineX[0] - 1) || (Ball.bMoveX + 1 >= Goal.gLineX[0] - 2) && (Ball.bMoveX + 1 <= Goal.gLineX[0] - 1) || (Ball.bMoveX >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX <= Goal.gLineX[gLength - 1] + 3) || (Ball.bMoveX + 1 >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1] + 3)){
-					if(Ball.bMoveY <= Goal.gMoveY){
-						Ball.ReadyB = 1;
-						Ball.bMoveX = Player.MoveX;
-						Ball.bMoveY = Player.MoveY - 1;
-					}
-				}else {
+			}else if((Ball.bMoveX >= Goal.gLineX[0] - 2 && Ball.bMoveX <= Goal.gLineX[0] - 1) || (Ball.bMoveX + 1 >= Goal.gLineX[0] - 2) && (Ball.bMoveX + 1 <= Goal.gLineX[0] - 1) || (Ball.bMoveX >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX <= Goal.gLineX[gLength - 1] + 3) || (Ball.bMoveX + 1 >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1] + 3)){
+				if(Ball.bMoveY <= Goal.gMoveY){
 					Ball.ReadyB = 1;
 					Ball.bMoveX = Player.MoveX;
 					Ball.bMoveY = Player.MoveY - 1;
 				}
-				
+			}else {
+				Ball.ReadyB = 1;
+				Ball.bMoveX = Player.MoveX;
+				Ball.bMoveY = Player.MoveY - 1;
 			}
-		}else{
-			Ball.bMoveX = Player.MoveX;
+				
 		}
-	 } 
-}
+	}else{
+		Ball.bMoveX = Player.MoveX;
+	}
+ } 
+
 
 // 출력
 
@@ -179,14 +180,14 @@ void Render()
 		ScreenPrint(0, Player.MoveY, &strPlayer[Player.X * (-1)]);
 	else if(Player.MoveX + (Length - Player.MoveX + Player.CenterX + 1) > 79)
 	{
-		strncat(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) - 79));	
+		strncat_s(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) - 79));	
 	 	ScreenPrint(Player.X, Player.Y, string);
 	 }else{
 		ScreenPrint(Player.X, Player.Y, strPlayer);
 	}
 	
 	ScreenPrint(Ball.bMoveX, Ball.bMoveY, "○");
-	sprintf(string, "주인공 이동좌표 : %d, %d", Player.MoveX, Player.Y);
+	sprintf_s(string, "주인공 이동좌표 : %d, %d", Player.MoveX, Player.Y);
 	ScreenPrint(0, 0, string);
 	
 	
@@ -214,8 +215,10 @@ void Render()
   
   
 int main (void){
+
 	int Key, Remain;
-	
+	clock_t CurTime, OldTime;
+
 	ScreenInit();
 	Init(); // 초기화
 	
@@ -231,16 +234,16 @@ int main (void){
 				case LEFT :
 					if(Player.MoveX > 0){
 					Player.MoveX--; 
-					Remain =  Length - (Player.CenterX + 1); // 남은길이 = 전체 길이 - (중심좌표 + 1)
-					if(Player.MoveX + Remain > 79 || Player.MoveX - Player.CenterX < 0)
-					Player.MoveX--;
+					Remain =  Length - (Player.CenterX); // 남은길이 = 전체 길이 - (중심좌표 + 1)
+					if(Player.MoveX + Remain > 79 || Player.MoveX - Player.CenterX - 1 < 0)
+						Player.MoveX--;
 					Player.X = Player.MoveX - Player.CenterX;
 					}
 					break;
 				case RIGHT :
-					if(Player.MoveX + 1 < 79){
+					if(Player.MoveX + 1< 79){
 					Player.MoveX++;
-					Remain = Length - (Player.CenterX + 1);
+					Remain = Length - (Player.CenterX);
 					if(Player.MoveX + Remain >79 || Player.MoveX - Player.CenterX < 0)
 						Player.MoveX++;
 					Player.X = Player.MoveX - Player.CenterX;
@@ -261,6 +264,17 @@ int main (void){
 		Update();//데이터 갱신 
 		Render(); //화면 출력 
 		
+		OldTime = clock();
+
+		while (1)
+		{
+			CurTime = clock();
+			if (CurTime - OldTime > 20)
+			{
+				OldTime = CurTime;
+				break;
+			}
+		}//대기시간
 	 } 
 	 
 	 Release();
