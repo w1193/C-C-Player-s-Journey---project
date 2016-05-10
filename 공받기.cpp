@@ -93,22 +93,24 @@ void Init() {
 
 void Update()
 {	
-	int BallCount = 0;
 	clock_t CurTime = clock();
 	int gLength = Goal.gLength * 2 + 1;
 	int i;
+	int BallCount = 0;
+	
 	if(Ball.ReadyB == 0) {//이동중일 경우
-		if ((CurTime - Ball.OldTime) > Ball.MoveTime) 
+		if ((CurTime - Ball.OldTime) > Ball.MoveTime)
 	 		{
-			 if(Ball.bMoveY - 1 > 0)
+			 if(Ball.bMoveY - 1 > 0){
 	 			Ball.bMoveY--;
 	 			Ball.OldTime = CurTime;
-			 	}else{
+		 		}else{
 			 		Ball.ReadyB = 1;
 			 		Ball.bMoveX = Player.MoveX;
 			 		Ball.bMoveY = Player.MoveY - 1;
-				 }
-	 		}else{
+			 	}
+              }
+		}else{
 		Ball.bMoveX = Player.MoveX;
 	}
 	
@@ -177,7 +179,7 @@ void Render()
 		ScreenPrint(0, Player.MoveY, &strPlayer[Player.X * (-1)]);
 	else if(Player.MoveX + (Length - Player.MoveX + Player.CenterX + 1) > 79)
 	{
-		strncat(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) -79));	
+		strncat(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) - 79));	
 	 	ScreenPrint(Player.X, Player.Y, string);
 	 }else{
 		ScreenPrint(Player.X, Player.Y, strPlayer);
@@ -199,12 +201,12 @@ void Render()
 	ScreenPrint(Goal.gLineX[gLength - 1] + 2, Goal.gMoveY, "ㅁ");
 	
 	//출력 끝
-		
+    		
 	
 	ScreenFlipping(); 
  }
  
- //해제
+    //해제
  
  void Release()
  {
