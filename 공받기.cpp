@@ -6,6 +6,7 @@
 #include <time.h>
 #pragma warning(disable:4996)
 
+// typedef ½Ã¸®Áî
 enum ControlKeys
 {
 	SPACE = 32,
@@ -22,7 +23,6 @@ typedef struct _GOAL
 	clock_t MoveTime;
 	clock_t OldTime;
 } GOAL;
-
 
 typedef struct _Ball
 {
@@ -45,43 +45,152 @@ typedef struct _Position
 	int X, Y; // X, Y ÇöÀç ÁÂÇ¥ 
 } Position;
 
+typedef struct _Effect
+{
+	clock_t StartTime; // È¿°ú ¹ß»ý ½Ã°¢
+	clock_t StayTime; // È¿°ú Áö¼Ó½Ã°£
+}EFFECT;
+
+typedef enum _GameState {INIT, READY, RUNNING, STOP, SUCCESS, FAILED, RESULT} GameState;
+
+typedef struct _StageInfo // ½ºÅ×ÀÌÁö ÃÊ±âÈ­ ½Ã, Init¿¡¼­ ÃÊ±âÈ­.
+{
+	int GoalBall; // ¸ñÇ¥ °ñÀÎ °³¼ö
+	clock_t LimitTime; // Á¦ÇÑ ½Ã°£
+	int GD_Length; // °ñ´ë ±æÀÌ
+	int GD_X; // ÃÖÃÊ XÁÂÇ¥
+	int GD_Y; // ÃÖÃÊ YÁÂÇ¥
+	clock_t GD_MoveTime; // °ñ´ë ÀÌµ¿ ½Ã°£ °£°Ý
+	int GD_Dist; // °ñ´ë ÀÌµ¿ °Å¸® 
+} StageInfo;
+
+GameState p_GameState = INIT; // ÃÖÃÊÀÇ »óÅÂ : INIT
+int p_Goal, p_Stage=-1, p_GameStartTime; // GoalIn? , Çö ½ºÅ×ÀÌÁö, °ÔÀÓ ½ÃÀÛ ½Ã°£
+
+char StateString[100]; // °ÔÀÓ »óÅÂ ÀúÀå
+clock_t p_OldTime; // °ÔÀÓ »óÅÂ ÀüÀÌ¸¦ À§ÇÑ ÀÌµ¿ ½Ã°¢ ÀúÀå
+
+StageInfo p_StageInfo[] = { { 1, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
+EFFECT Effect;
 GOAL Goal;
 BALL Ball;
 PLAYER Player;
 char strPlayer[] = { "|__¡Ü__|" }; //Ä³¸¯ÅÍ
 int Length; // ÁÖÀÎ°ø Ä³¸¯ÅÍ ±æÀÌ
-int BallCount = 0;
+int BallCount = 0; // ÃÑ ³ÖÀº °øÀÇ °¹¼ö
+int GoalIn; // GoalIn Çß´Â°¡?
+clock_t p_LimitTime; // Á¦ÇÑ ½Ã°£
+int p_GoalCount; // ¸ñÇ¥ °ñÀÎ °³¼ö
+
+void FirstScreen(int X, int Y) // Ã¹ È­¸é 
+{ 
+	ScreenPrint(X, Y,     "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú½¸ °ñ ÀÎ¡Ù¡Ú¡Ù¡Ú°Ô ÀÓ¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+}
+
+void GoalCere(int X, int Y) // °ñ ¼¼·¹¸Ó´Ï È­¸é
+{
+	ScreenPrint(X, Y,   "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡ÚG O A L¡Ù¡Ú¡Ù¡ÚI N¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y+6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+} 
+
+void MissionSuccess(int X, int Y) // ¹Ì¼Ç ¼º°ø È­¸é
+{
+	ScreenPrint(X, Y,     "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¹Ì ¼Ç¡Ù¡Ú¡Ù¼º °ø¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+}
+
+void MissionFailed(int X, int Y) // ¹Ì¼Ç ½ÇÆÐ È­¸é
+{
+	ScreenPrint(X, Y,     "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¹Ì ¼Ç¡Ù¡Ú¡Ù½Ç ÆÐ¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+}
+
+void Quit(int X, int Y) // °ÔÀÓ Á¾·á È­¸é
+{
+	ScreenPrint(X, Y,     "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù°Ô ÀÓ¡Ù¡Ú¡Ù¡ÚÁ¾ ·á¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+}
+
+void StageScreen(int X, int Y) // ½ºÅ×ÀÌÁö È­¸é
+{
+	ScreenPrint(X, Y,     "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 1, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 2, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 3, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡ÙS T A G E¡Ù¡Ú¡Ù¡ÚN¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 4, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 5, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+	ScreenPrint(X, Y + 6, "¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú¡Ù¡Ú");
+}
+
 // ÃÊ±âÈ­
 void Init() {
+	
+	//StageInfo. ½ºÅ×ÀÌÁö ±¸¼º¿ä¼Ò
+	if (p_Stage == -1) // °ÔÀÓ Ã¹ ½ÇÇà
+		p_Stage = 0;
 
+	p_LimitTime = p_StageInfo[p_Stage].LimitTime; // Á¦ÇÑ ½Ã°£ ¼³Á¤
+	p_GoalCount = p_StageInfo[p_Stage].GoalBall; // ¸ñÇ¥ °ñÀÎ °³¼ö
+
+	//ÇÃ·¹ÀÌ¾î
 	Player.CenterX = 3; //ÁÖÀÎ°ø X Áß½É ÁÂÇ¥
 	Player.CenterY = 0; //ÁÖÀÎ°ø Y Áß½É ÁÂÇ¥ 
-	Player.MoveX = 20; // ÁÖÀÎ°ø ÀÌµ¿ ¤¼ÁÂÇ¥ ÃÊ±âÈ­
+	Player.MoveX = 20; // ÁÖÀÎ°ø ÀÌµ¿ XÁÂÇ¥ ÃÊ±âÈ­
 	Player.Y = Player.MoveY = 22; // ÁÖÀÎ°ø ÀÌµµ YÁÂÇ¥ ÃÊ±âÈ­
 	Player.X = Player.MoveX - Player.CenterX; //ÁÖÀÎ°ø Ä³¸¯ÅÍ Ãâ·Â ÁÂÇ¥
 	Length = strlen(strPlayer); //ÁÖÀÎ°ø ÀüÃ¼ ±æÀÌ
 
+	//°ø
 	Ball.ReadyB = 1;
 	Ball.bMoveX = Player.MoveX;
 	Ball.bMoveY = Player.MoveY - 1;
 	Ball.MoveTime = 100;
 
+	//°ñ´ë (¼öÁ¤)
 	int gLength, i;
 
-	Goal.gMoveX = 20;
-	Goal.gMoveY = 2;
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
-	Goal.gLength = 3; // °ñ´ë ±æÀÌ = gLength * 2 + 1 
-=======
-	Goal.gLength = 2;
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
-	Goal.MoveTime = 100;
+	Goal.gMoveX = p_StageInfo[p_Stage].GD_X;
+	Goal.gMoveY = p_StageInfo[p_Stage].GD_Y;
+	Goal.gLength = p_StageInfo[p_Stage].GD_Length; // °ñ´ë ±æÀÌ = gLength * 2 + 1 
+	Goal.MoveTime = p_StageInfo[p_Stage].GD_MoveTime;
 	Goal.OldTime = clock();
-	Goal.gDistance = 1;
-	gLength = Goal.gLength * 2 + 1;
+	Goal.gDistance = p_StageInfo[p_Stage].GD_Dist;
+	gLength = Goal.gLength * 2 + 1; // ¹è¿­ÀÇ ÃÖ´ë ±æÀÌ
 	for (i = 0; i < gLength; i++) {
 		Goal.gLineX[i] = Goal.gMoveX + 2 * (i + 1);
 	}
+
+	//¼¼·¹¸Ó´Ï
+	Effect.StayTime = 3000; // ¼¼·¹¸Ó´Ï È­¸é 3ÃÊ
+
+	//
+	p_OldTime = clock();
 }
 // µ¥ÀÌÅÍ °»½Å
 void Update()
@@ -89,32 +198,10 @@ void Update()
 	clock_t CurTime = clock();
 	int gLength = Goal.gLength * 2 + 1;
 	int i;
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 
 
 
 	if ((CurTime - Goal.OldTime) > Goal.MoveTime)
-=======
-	int BallCount = 0;
-	
-	if(Ball.ReadyB == 0) {//ÀÌµ¿ÁßÀÏ °æ¿ì
-		if ((CurTime - Ball.OldTime) > Ball.MoveTime)
-	 		{
-			 if(Ball.bMoveY - 1 > 0){
-	 			Ball.bMoveY--;
-	 			Ball.OldTime = CurTime;
-		 	}else{
-			 	Ball.ReadyB = 1;
-			 	Ball.bMoveX = Player.MoveX;
-			 	Ball.bMoveY = Player.MoveY - 1;
-			  }
-             }
-		}else{
-		Ball.bMoveX = Player.MoveX;
-	}
-	
-	if((CurTime - Goal.OldTime) > Goal.MoveTime)
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 	{
 		Goal.OldTime = CurTime;
 		if (Goal.gMoveX + Goal.gDistance >= 0 && ((Goal.gLineX[gLength - 1] + 3) + Goal.gDistance) <= 79)
@@ -138,30 +225,23 @@ void Update()
 				Ball.OldTime = CurTime;
 
 				//°ñ´ëÀÇ¶óÀÎ°ú Ãæµ¹ 
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 				if (Ball.bMoveX >= Goal.gLineX[0] && Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1]) {
 					if (Ball.bMoveY <= Goal.gMoveY) {//°ø ÃÊ±âÈ­ 
-=======
-				if(Ball.bMoveX >= Goal.gLineX[0] && Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1]){
-					if(Ball.bMoveY <= Goal.gMoveY) //°ø ÃÊ±âÈ­ 
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 						Ball.ReadyB = 1;
+						Ball.bMoveX = Player.MoveX;
 						Ball.bMoveY = Player.MoveY - 1;
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 						BallCount++; //µæÁ¡
+						GoalIn = 1;
+						Effect.StartTime = clock();
 					}
 					//°ñ´ë Ãæµ¹ 
 				}
 				else if ((Ball.bMoveX >= Goal.gLineX[0] - 2 && Ball.bMoveX <= Goal.gLineX[0] - 1) || (Ball.bMoveX + 1 >= Goal.gLineX[0] - 2) && (Ball.bMoveX + 1 <= Goal.gLineX[0] - 1) || (Ball.bMoveX >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX <= Goal.gLineX[gLength - 1] + 3) || (Ball.bMoveX + 1 >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1] + 3)) {
 					if (Ball.bMoveY <= Goal.gMoveY) {
 						Ball.ReadyB = 1;
-=======
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 						Ball.bMoveX = Player.MoveX;
-						BallCount++; //µæÁ¡
-						printf("¼º°ø!");
+						Ball.bMoveY = Player.MoveY - 1;
 					}
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 				}
 			}
 			else {
@@ -174,29 +254,90 @@ void Update()
 	else {
 		Ball.bMoveX = Player.MoveX;
 	}
-}
-=======
-					//°ñ´ë Ãæµ¹ 
-			}else if((Ball.bMoveX >= Goal.gLineX[0] - 2 && Ball.bMoveX <= Goal.gLineX[0] - 1) || (Ball.bMoveX + 1 >= Goal.gLineX[0] - 2) && (Ball.bMoveX + 1 <= Goal.gLineX[0] - 1) || (Ball.bMoveX >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX <= Goal.gLineX[gLength - 1] + 3) || (Ball.bMoveX + 1 >= Goal.gLineX[gLength - 1]) + 2 && (Ball.bMoveX + 1 <= Goal.gLineX[gLength - 1] + 3)){
-				if(Ball.bMoveY <= Goal.gMoveY){
-					Ball.ReadyB = 1;
-					Ball.bMoveX = Player.MoveX;
-					Ball.bMoveY = Player.MoveY - 1;
-				}
-			}else {
-				Ball.ReadyB = 1;
-				Ball.bMoveX = Player.MoveX;
-				Ball.bMoveY = Player.MoveY - 1;
-			}
-				
-		}
-	}else{
-		Ball.bMoveX = Player.MoveX;
+
+	//¼¼·¹¸Ó´Ï
+	if (GoalIn == 1)
+	{
+		if ((CurTime - Effect.StartTime) > Effect.StayTime)
+			GoalIn = 0;
 	}
- } 
 
+	//
+	switch (p_GameState)
+	{
+	case INIT: // case ÃÊ±âÈ­
+		if (p_Stage == 0)
+		{
+			sprintf(StateString, "%s", "°ÔÀÓ ¹× »ç¿îµå ÃÊ±âÈ­");
+			if (CurTime - p_OldTime > 3000) // °ÔÀÓ »óÅÂ ÀüÀÌ?
+			{
+				p_OldTime = CurTime;
+				p_Stage = 1; // ½ºÅ×ÀÌÁö ³Ñ¾î°¨
+				p_GameState = READY; // READY »óÅÂ·Î ³Ñ¾î°¨
+			}
+			else // ½Ã°£ÀÌ ¾È µÆÀ½.
+			{ // INIT Ã¢ ¶ç¿ò
+				sprintf(StateString, "[INIT] °ÔÀÓ %d ½ºÅ×ÀÌÁö ÃÊ±âÈ­", p_Stage);
 
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
+				if (CurTime - p_OldTime > 3000) // Ã¢ ¶ç¿î ÈÄ, »óÅÂ ÀüÀÌ?
+				{
+					p_OldTime = CurTime;
+				}
+			}
+		}
+		break;
+
+	case READY: // READY »óÅÂ
+		sprintf(StateString, "[READY] %d ½ºÅ×ÀÌÁö", p_Stage);
+		if (CurTime - p_OldTime > 3000)
+		{
+			p_OldTime = CurTime;
+			p_GameState = RUNNING;
+			p_GameStartTime = CurTime;
+		}
+		break;
+
+	case RUNNING: // RUNNING »óÅÂ
+		if (CurTime - p_GameStartTime > 10000) // Á¦ÇÑ½Ã°£ 10ÃÊ¸¦ ³Ñ±è
+		{
+			p_GameState = STOP; // STOP »óÅÂ·Î ³Ñ¾î°¨ -> ÆÇº°
+		}
+		else
+		{
+			sprintf(StateString, "[RUNNING] Á¦ÇÑ ½Ã°£ : 10ÃÊ. ÇöÀç ½Ã°£ : %d", (CurTime - p_GameStartTime) / 1000); // ¹®±¸ Ãâ·Â
+		}
+		break;
+	case STOP: // STOP »óÅÂ. ¼º°ø/½ÇÆÐ ÆÇÁ¤
+		if (BallCount == 0)
+		{
+			p_GameState = FAILED;
+		}
+		else
+		{
+			p_GameState = SUCCESS;
+		}
+		break;
+	case SUCCESS: // SUCCESS »óÅÂ. ¹Ì¼Ç ¼º°ø
+		sprintf(StateString, "%s", "¹Ì¼Ç ¼º°ø");
+		if (CurTime - p_OldTime > 3000)
+		{
+			p_OldTime = CurTime;
+			p_GameState = INIT; // INIT ´Ü°è·Î µ¹¾Æ°¨
+			++p_Stage; // Stage ·¹º§ Áõ°¡
+		}
+		break;
+	case FAILED: // FAILED »óÅÂ. ¹Ì¼Ç ½ÇÆÐ
+		sprintf(StateString, "%s", "¹Ì¼Ç ½ÇÆÐ. ÀçµµÀü? (Y/N)"); // Y,N ÀÔ·Â. Stage ·¹º§ ±×´ë·Î.
+		break;
+	case RESULT: // RESULT »óÅÂ. °ÔÀÓ °á°ú
+		sprintf(StateString, "%s", "°ÔÀÓ °á°ú È­¸é");
+		if (CurTime - p_OldTime > 3000)
+		{
+			p_OldTime = CurTime;
+		}
+		break;
+	}
+}
 // Ãâ·Â
 void Render()
 {
@@ -211,26 +352,15 @@ void Render()
 		ScreenPrint(0, Player.MoveY, &strPlayer[Player.X * (-1)]);
 	else if (Player.MoveX + (Length - Player.MoveX + Player.CenterX + 1) > 79)
 	{
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 		strncat(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) - 79));
 		ScreenPrint(Player.X, Player.Y, string);
 	}
-	else {
+	else {	
 		ScreenPrint(Player.X, Player.Y, strPlayer);
 	}
 
 	ScreenPrint(Ball.bMoveX, Ball.bMoveY, "¡Ý");
 	sprintf(string, "ÁÖÀÎ°ø ÀÌµ¿ÁÂÇ¥ : %d, %d              Á¡ ¼ö : %d               ÃÊ±âÈ­ : R ¹öÆ° ", Player.MoveX, Player.Y, BallCount);
-=======
-		strncat_s(string, strPlayer, Length - ((Player.MoveX + Player.CenterX + 1) - 79));	
-	 	ScreenPrint(Player.X, Player.Y, string);
-	 }else{
-		ScreenPrint(Player.X, Player.Y, strPlayer);
-	}
-	
-	ScreenPrint(Ball.bMoveX, Ball.bMoveY, "¡Û");
-	sprintf_s(string, "ÁÖÀÎ°ø ÀÌµ¿ÁÂÇ¥ : %d, %d", Player.MoveX, Player.Y);
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 	ScreenPrint(0, 0, string);
 
 
@@ -244,8 +374,19 @@ void Render()
 
 	ScreenPrint(Goal.gLineX[gLength - 1] + 2, Goal.gMoveY, "¤±");
 
+	//¼¼·¹¸Ó´Ï Ãâ·Â
+
+	if (GoalIn == 1)
+	{
+		//ScreenClear();
+		//GoalCere(10,5);
+		ScreenPrint(50, 5, "** G O A L  I N **");
+	}
+
+	// »óÅÂ Ãâ·Â
+	ScreenPrint(20, 10, StateString);
+
 	//Ãâ·Â ³¡
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 
 
 	ScreenFlipping();
@@ -260,38 +401,47 @@ void Release()
 
 int main(void) {
 	int Key, Remain;
-=======
-    		
-	
-	ScreenFlipping(); 
- }
- 
-    //ÇØÁ¦
- 
- void Release()
- {
-  }
-  
-  
-int main (void){
-
-	int Key, Remain;
-	clock_t CurTime, OldTime;
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 
 	ScreenInit();
 	Init(); // ÃÊ±âÈ­
 
 	while (1) //¹«ÇÑ¹Ýº¹ 
 	{
-		if (_kbhit())
+		if (_kbhit()) // Å° ÀÔ·Â?
 		{
 			Key = _getch();
+			if (p_GameState == RESULT) // RESULT¿¡¼­ Å°ÀÔ·Â -> Á¾·á
+				break;
+			
+			// RESULT »óÅÂ°¡ ¾Æ´Ò ½Ã
+			
 			if (Key == 'q')
 				break;
 			switch (Key)
 			{
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
+				// S F Y N
+			case 'S': case 's':
+				p_Goal = 1;
+				break;
+			case 'F': case 'f':
+				p_Goal = 0;
+				break;
+			case 'Y': case 'y':
+				if (p_GameState == FAILED)
+				{
+					p_GameState = INIT;
+					p_OldTime = clock();
+				}
+				break;
+			case 'N': case 'n':
+				if (p_GameState == FAILED)
+				{
+					p_GameState = RESULT;
+					p_OldTime = clock();
+				}
+				break;
+
+				// ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ Á¶ÀÛ
 			case LEFT:
 				if (Player.MoveX > 0) {
 					Player.MoveX--;
@@ -306,22 +456,6 @@ int main (void){
 					Player.MoveX++;
 					Remain = Length - (Player.CenterX + 1);
 					if (Player.MoveX + Remain >79 || Player.MoveX - Player.CenterX < 0)
-=======
-				case LEFT :
-					if(Player.MoveX > 0){
-					Player.MoveX--; 
-					Remain =  Length - (Player.CenterX); // ³²Àº±æÀÌ = ÀüÃ¼ ±æÀÌ - (Áß½ÉÁÂÇ¥ + 1)
-					if(Player.MoveX + Remain > 79 || Player.MoveX - Player.CenterX - 1 < 0)
-						Player.MoveX--;
-					Player.X = Player.MoveX - Player.CenterX;
-					}
-					break;
-				case RIGHT :
-					if(Player.MoveX + 1< 79){
-					Player.MoveX++;
-					Remain = Length - (Player.CenterX);
-					if(Player.MoveX + Remain >79 || Player.MoveX - Player.CenterX < 0)
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
 						Player.MoveX++;
 					Player.X = Player.MoveX - Player.CenterX;
 				}
@@ -333,7 +467,8 @@ int main (void){
 					Ball.bMoveY = Player.MoveY - 1;
 					Ball.OldTime = clock();
 					Ball.ReadyB = 0;
-				}
+				}				
+
 				break;
 			case 'r':
 				if (BallCount != 0)
@@ -349,7 +484,6 @@ int main (void){
 
 		Update();//µ¥ÀÌÅÍ °»½Å 
 		Render(); //È­¸é Ãâ·Â 
-<<<<<<< HEAD:ìŠ›ê³¨ì¸/ê³µë°›ê¸°.cpp
 
 	}
 
@@ -357,23 +491,3 @@ int main (void){
 	ScreenRelease();
 	return 0;
 }
-=======
-		
-		OldTime = clock();
-
-		while (1)
-		{
-			CurTime = clock();
-			if (CurTime - OldTime > 20)
-			{
-				OldTime = CurTime;
-				break;
-			}
-		}//´ë±â½Ã°£
-	 } 
-	 
-	 Release();
-	 ScreenRelease();
-	 return 0;
-}
->>>>>>> 8db8968ed5b14923f3f4ff070dcb587be84b5187:ê³µë°›ê¸°.cpp
