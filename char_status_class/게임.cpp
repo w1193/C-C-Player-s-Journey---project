@@ -4,6 +4,7 @@
 
 int choise;//선택
 int day = 0;//날짜
+int class_pro;//수업 받았는지 확인
 
 void week()
 {
@@ -14,18 +15,35 @@ home:
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		system("cls");
-		system("PAUSE");
-		day++;
-		//여기에 잠자기 했을때 일어나는 상황
-		return ;
-	case(2) :
+		if (class_pro == 1)
+		{
+			system("PAUSE");
+			class_pro--;
+			day++;
+			//여기에 잠자기 했을때 일어나는 상황
+			return;
+		}
+		else
+		{
+			printf_s("아직 수업을 듣지 않았습니다\n\n그래도 잠을 자겟습니까?\n\n1. 잔다\n\n2. 안잔다\n");
+			scanf_s("%d", &choise);
+			switch (choise)
+			{
+			case(1):
+				day++;
+				return;
+			case(2):
+				goto home;
+			}
+		}
+	case(2):
 		system("cls");
 		system("PAUSE");
 		//여기에 밥먹기 했을때 일어나는 상황
 		goto home;
-	case(9) :
+	case(9):
 		system("PAUSE");
 		goto school;
 	}
@@ -37,23 +55,23 @@ school:
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		printf_s("신관을 간다\n");
 		system("PAUSE");
 		goto cafe;
-	case(2) :
+	case(2):
 		printf_s("교양동을 간다\n");
 		system("PAUSE");
 		goto classroom;
-	case(3) :
+	case(3):
 		printf_s("공대 4호관을 간다\n");
 		system("PAUSE");
 		goto eng_univ;
-	case(4) :
+	case(4):
 		printf_s("도서관을 간다\n");
 		system("PAUSE");
 		goto lib;
-	case(5) :
+	case(5):
 		printf_s("기숙사를 간다\n");
 		system("PAUSE");
 		goto home;
@@ -66,11 +84,11 @@ cafe:
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		goto club;
-	case(2) :
+	case(2):
 		goto food;
-	case(9) :
+	case(9):
 		goto school;
 	}
 
@@ -81,19 +99,19 @@ food:
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		system("cls");
 		printf_s("정식머금");
 		//정식먹으면 나오는 변화
 		system("pause");
 		goto food;
-	case(2) :
+	case(2):
 		system("cls");
 		printf_s("특식머금");
 		//특식 먹으면 나오는 변화
 		system("pause");
 		goto food;
-	case(9) :
+	case(9):
 		goto cafe;
 	}
 club:
@@ -107,9 +125,9 @@ classroom:
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		//이곳에 수업 들으면 일어나는 상황
-	case(9) :
+	case(9):
 		goto school;
 	}
 
@@ -123,19 +141,19 @@ eng_class:
 
 eng_room:
 	printf_s("과방 입니다\n\n");
+	class_pro++;
+	goto home;
 
 lib:
 	printf_s("중앙 도서관 입니다\n\n");
 
 }
-
 void weekend()
 {
 	printf_s("주말입니다\n");
 	system("pause");
 	day++;
 }
-
 void vacation()
 {}
 
