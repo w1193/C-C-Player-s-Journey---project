@@ -51,7 +51,7 @@ typedef struct _Effect
 	clock_t StayTime; // 효과 지속시간
 }EFFECT;
 
-typedef enum _GameState {INIT, READY, RUNNING, STOP, SUCCESS, FAILED, RESULT} GameState;
+typedef enum _GameState {START, INIT, READY, RUNNING, STOP, SUCCESS, FAILED, RESULT} GameState;
 
 typedef struct _StageInfo // 스테이지 초기화 시, Init에서 초기화.
 {
@@ -64,13 +64,13 @@ typedef struct _StageInfo // 스테이지 초기화 시, Init에서 초기화.
 	int GD_Dist; // 골대 이동 거리 
 } StageInfo;
 
-GameState p_GameState = INIT; // 최초의 상태 : INIT
+GameState p_GameState = START; // 최초의 상태 : START
 int p_Goal, p_Stage=-1, p_GameStartTime; // GoalIn? , 현 스테이지, 게임 시작 시간
 
 char StateString[100]; // 게임 상태 저장
 clock_t p_OldTime; // 게임 상태 전이를 위한 이동 시각 저장
 
-StageInfo p_StageInfo[] = { { 5, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
+StageInfo p_StageInfo[] = { { 1, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
 EFFECT Effect;
 GOAL Goal;
 BALL Ball;
@@ -81,72 +81,6 @@ int BallCount = 0; // 총 넣은 공의 갯수
 int GoalIn; // GoalIn 했는가?
 clock_t p_LimitTime; // 제한 시간
 int p_GoalCount; // 목표 골인 개수
-
-void FirstScreen(int X, int Y) // 첫 화면 
-{ 
-	ScreenPrint(X, Y,     "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 3, "☆★☆★☆★슛 골 인☆★☆★게 임★☆★☆★☆★");
-	ScreenPrint(X, Y + 4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-}
-
-void GoalCere(int X, int Y) // 골 세레머니 화면
-{
-	ScreenPrint(X, Y,   "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y+1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y+2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y+3, "☆★☆★☆★☆★G O A L☆★☆★I N★☆★☆★☆★");
-	ScreenPrint(X, Y+4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y+5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y+6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-} 
-
-void MissionSuccess(int X, int Y) // 미션 성공 화면
-{
-	ScreenPrint(X, Y,     "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 3, "☆★☆★☆★☆미 션☆★☆성 공★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-}
-
-void MissionFailed(int X, int Y) // 미션 실패 화면
-{
-	ScreenPrint(X, Y,     "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 3, "☆★☆★☆★☆미 션☆★☆실 패★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-}
-
-void Quit(int X, int Y) // 게임 종료 화면
-{
-	ScreenPrint(X, Y,     "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 3, "☆★☆★☆★☆게 임☆★☆★종 료☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-}
-
-void StageScreen(int X, int Y) // 스테이지 화면
-{
-	ScreenPrint(X, Y,     "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 1, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 2, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 3, "☆★☆★☆★☆S T A G E☆★☆★N☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 4, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 5, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-	ScreenPrint(X, Y + 6, "☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★☆★");
-}
 
 // 초기화
 void Init() {
@@ -265,19 +199,29 @@ void Update()
 	//
 	switch (p_GameState)
 	{
+	case START: // 게임 시작 화면
+		// 초기 화면 좀 고쳐보기 ... 
+		/*
+		ScreenPrint(50, 50, "게임 시작 : SPACE BAR");
+		ScreenPrint(50, 60, "게임 종료 : q");
+		*/
+		sprintf(StateString, "게임 시작 화면 \n 게임 시작 : SPACE BAR \n 게임 종료 : q");
+		
+		break;
+
 	case INIT: // case 초기화
-		if (p_Stage == 0)
+		if (p_Stage != -1)
 		{
 			sprintf(StateString, "%s", "게임 및 사운드 초기화");
 			if (CurTime - p_OldTime > 3000) // 게임 상태 전이?
 			{
 				p_OldTime = CurTime;
-				p_Stage = 1; // 스테이지 넘어감
+				p_Stage++; // 스테이지 넘어감
 				p_GameState = READY; // READY 상태로 넘어감
 			}
 			else // 시간이 안 됐음.
 			{ // INIT 창 띄움
-				sprintf(StateString, "[INIT] 게임 %d 스테이지 초기화", p_Stage);
+				sprintf(StateString, "[INIT] 게임 스테이지 초기화");
 
 				if (CurTime - p_OldTime > 3000) // 창 띄운 후, 상태 전이?
 				{
@@ -308,13 +252,13 @@ void Update()
 		}
 		break;
 	case STOP: // STOP 상태. 성공/실패 판정
-		if (BallCount == 0)
+		if (BallCount == p_GoalCount)
 		{
-			p_GameState = FAILED;
+			p_GameState = SUCCESS;
 		}
 		else
 		{
-			p_GameState = SUCCESS;
+			p_GameState = FAILED;
 		}
 		break;
 	case SUCCESS: // SUCCESS 상태. 미션 성공
@@ -341,7 +285,7 @@ void Update()
 		}
 		break;
 	}
-}
+} 
 // 출력
 void Render()
 {
@@ -418,14 +362,24 @@ int main(void) {
 		if (_kbhit()) // 키 입력?
 		{
 			Key = _getch();
-			if (p_GameState == RESULT || p_GameState==SUCCESS) // RESULT , SUCCESS에서 키입력 -> 종료
+			if (p_GameState == RESULT) // RESULT 키입력 -> 종료
 				break;
 			
-			// RESULT, SUCCESS 상태가 아닐 시
+			// RESULT 상태가 아닐 시
 			
 			if (Key == 'q')
 				break;
 
+			// START 상태에서의 키 조작
+			if (p_GameState == START)
+			{
+				if (Key == SPACE)
+				{
+					p_GameState = INIT;
+				}
+			}
+
+			// FAILED 상태에서의 키 조작
 			if (p_GameState == FAILED)
 			{
 				switch (Key)
@@ -440,9 +394,10 @@ int main(void) {
 					break;
 				}
 			}
+
 			switch (Key)
 			{
-				// S F Y N
+				// S F Y
 			case 'S': case 's':
 				p_Goal = 1;
 				break;
