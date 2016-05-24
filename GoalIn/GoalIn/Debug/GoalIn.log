@@ -1,0 +1,4 @@
+﻿  공받기.cpp
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\goalin\screen.c(41): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+  GoalIn.vcxproj -> C:\Users\samsungpc\Documents\opopop\C-C-Player-s-Journey---project\GoalIn\Debug\GoalIn.exe
+  GoalIn.vcxproj -> C:\Users\samsungpc\Documents\opopop\C-C-Player-s-Journey---project\GoalIn\Debug\GoalIn.pdb (Partial PDB)
