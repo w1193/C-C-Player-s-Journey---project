@@ -2,10 +2,30 @@
 #include <stdlib.h> 
 #include <time.h>
 
+int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty; //캐릭터 스탯
+int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty = 0;
+int Money = 50000;//초기 시작 스탯과 돈
+int Stat_min = 0;
+int Stat_max = 100;//스탯의 최대치와 최소치
+
 int choise;//선택
 int day = 0;//날짜
 int class_pro;//수업 받았는지 확인
 int back;
+
+int Stat_Limit(int stat) {
+	if (stat <= Stat_min) {
+		stat = 0;
+	}
+	if (stat >= Stat_max) {
+		stat = 100;
+	}
+	else
+	{
+		stat = stat;
+	}
+	return stat;
+}
 
 void sleep()
 {
@@ -14,7 +34,8 @@ void sleep()
 		system("PAUSE");
 		class_pro--;
 		day++;
-		//여기에 잠자기 했을때 일어나는 상황
+		Stamina = Stat_max / 2;
+		Stat_Limit(Power);//여기에 잠자기 했을때 일어나는 상황
 		return;
 	}
 	else
@@ -55,7 +76,7 @@ home: {
 	case(2) :
 		system("cls");
 		system("PAUSE");
-		//여기에 밥먹기 했을때 일어나는 상황
+		Stamina += 5;//여기에 밥먹기 했을때 일어나는 상황
 		goto home;
 	case(9) :
 		system("PAUSE");
@@ -117,13 +138,15 @@ food: {
 			case(1) :
 				system("cls");
 				printf_s("정식머금");
-				//정식먹으면 나오는 변화
+				Money -= 2000;
+				Stamina += 10;//정식먹으면 나오는 변화
 				system("pause");
 				goto food;
 			case(2) :
 				system("cls");
 				printf_s("특식머금");
-				//특식 먹으면 나오는 변화
+				Money -= 3000;
+				Stamina += 15;//특식 먹으면 나오는 변화
 				system("pause");
 				goto food;
 			case(9) :
@@ -141,7 +164,8 @@ classroom: {
 				switch (choise)
 				{
 				case(1) :
-					//이곳에 수업 들으면 일어나는 상황
+					Stamina -= 5;
+					Intel += 5;//이곳에 수업 들으면 일어나는 상황
 				case(9) :
 					goto school;
 				}
