@@ -70,7 +70,7 @@ int p_Goal, p_Stage=-1, p_GameStartTime; // GoalIn? , 현 스테이지, 게임 시작 시�
 char StateString[100]; // 게임 상태 저장
 clock_t p_OldTime; // 게임 상태 전이를 위한 이동 시각 저장
 
-StageInfo p_StageInfo[] = { { 1, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
+StageInfo p_StageInfo[] = { { 2, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
 EFFECT Effect;
 GOAL Goal;
 BALL Ball;
@@ -200,12 +200,8 @@ void Update()
 	switch (p_GameState)
 	{
 	case START: // 게임 시작 화면
-		// 초기 화면 좀 고쳐보기 ... 
-		/*
-		ScreenPrint(50, 50, "게임 시작 : SPACE BAR");
-		ScreenPrint(50, 60, "게임 종료 : q");
-		*/
-		sprintf(StateString, "게임 시작 화면 \n 게임 시작 : SPACE BAR \n 게임 종료 : q");
+
+		sprintf(StateString, "\t[게임 시작 화면] \n\n \t\t\t게임 시작 : SPACE BAR \n\t\t\t게임 종료 : q");
 		
 		break;
 
@@ -216,7 +212,7 @@ void Update()
 			if (CurTime - p_OldTime > 3000) // 게임 상태 전이?
 			{
 				p_OldTime = CurTime;
-				p_Stage++; // 스테이지 넘어감
+				BallCount = 0;
 				p_GameState = READY; // READY 상태로 넘어감
 			}
 			else // 시간이 안 됐음.
@@ -232,7 +228,7 @@ void Update()
 		break;
 
 	case READY: // READY 상태
-		sprintf(StateString, "[READY] %d 스테이지", p_Stage);
+		sprintf(StateString, "[READY] %d 스테이지 \n \t\t\t\t\t\t목표 Goal : %d", p_Stage,p_GoalCount);
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
@@ -242,17 +238,17 @@ void Update()
 		break;
 
 	case RUNNING: // RUNNING 상태
-		if (CurTime - p_GameStartTime > 10000) // 제한시간 10초를 넘김
+		if (CurTime - p_GameStartTime > p_StageInfo[p_Stage].LimitTime) // 제한시간 LimitTime을 넘김
 		{
 			p_GameState = STOP; // STOP 상태로 넘어감 -> 판별
 		}
 		else
 		{
-			sprintf(StateString, "[RUNNING] 제한 시간 : 10초. 현재 시간 : %d", (CurTime - p_GameStartTime) / 1000); // 문구 출력
+			sprintf(StateString, "[RUNNING] 제한 시간 : %d초. 현재 시간 : %d",p_StageInfo[p_Stage].LimitTime/1000, (CurTime - p_GameStartTime) / 1000); // 문구 출력
 		}
 		break;
 	case STOP: // STOP 상태. 성공/실패 판정
-		if (BallCount == p_GoalCount)
+		if (BallCount >= p_GoalCount)
 		{
 			p_GameState = SUCCESS;
 		}
@@ -262,23 +258,22 @@ void Update()
 		}
 		break;
 	case SUCCESS: // SUCCESS 상태. 미션 성공
-		sprintf(StateString, "%s", "미션 성공");
+		sprintf(StateString, "스테이지 %d 미션 성공. 다음 단계? (Y/N)",p_Stage);
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
-			p_GameState = INIT; // INIT 단계로 돌아감
-			++p_Stage; // Stage 레벨 증가
+		//	++p_Stage; // Stage 레벨 증가
 		}
 		break;
 	case FAILED: // FAILED 상태. 미션 실패
-		sprintf(StateString, "%s", "미션 실패. 재도전? (Y/N)"); // Y,N 입력. Stage 레벨 그대로.
+		sprintf(StateString, "스테이지 %d 미션 실패. 재도전? (Y/N)",p_Stage); // Y,N 입력. Stage 레벨 그대로.
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
 		}
 		break;
 	case RESULT: // RESULT 상태. 게임 결과
-		sprintf(StateString, "%s", "게임 결과 화면");
+		sprintf(StateString, "[게임 결과 화면]\n\n\t\t\t가장 최근 스테이지에서 넣은 공 수 : %d\n\t\t\t최종 스테이지 : %d", BallCount,p_Stage);
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
@@ -379,16 +374,24 @@ int main(void) {
 				}
 			}
 
-			// FAILED 상태에서의 키 조작
-			if (p_GameState == FAILED)
+			// FAILED , SUCCESS 상태에서의 키 조작
+			if (p_GameState == FAILED || p_GameState==SUCCESS)
 			{
 				switch (Key)
 				{
 				case 'Y': case 'y':
+					if (p_GameState == SUCCESS)
+					{
+						p_Stage++; // 미션성공 + 게임진행 원할 시, 스테이지 레벨 증가
+					}
 					p_GameState = INIT;
 					p_OldTime = clock();
 					break;
 				case 'N': case 'n':
+					if (p_GameState == FAILED)
+					{
+						p_Stage--; // 게임결과창을 위한 --
+					}
 					p_GameState = RESULT;
 					p_OldTime = clock();
 					break;
