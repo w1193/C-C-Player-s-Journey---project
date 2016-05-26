@@ -2,7 +2,7 @@
 #include <stdlib.h> 
 #include <time.h>
 
-int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty; //캐릭터 스탯
+//int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty; //캐릭터 스탯
 int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty = 0;
 int Money = 50000;//초기 시작 스탯과 돈
 int Stat_min = 0;
@@ -40,7 +40,7 @@ void sleep()
 	}
 	else
 	{
-		printf_s("아직 수업을 듣지 않았습니다\n\n그래도 잠을 자겟습니까?\n\n1. 잔다\n\n2. 안잔다\n");
+		printf_s("아직 수업을 듣지 않았습니다\n\n그래도 잠을 자겠습니까?\n\n1. 잔다\n\n2. 안잔다\n");
 		scanf_s("%d", &choise);
 		switch (choise)
 		{
