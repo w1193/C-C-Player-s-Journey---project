@@ -20,7 +20,8 @@ and this project will be made in Korean
       - For Ball :
           bMoveX, bMoveY ....
     ```
- ##Main Game
+    
+##Main Game
     ```
     * Stat
           Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money
