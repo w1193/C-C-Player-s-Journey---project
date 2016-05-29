@@ -13,6 +13,12 @@ int day = 0;//날짜
 int class_pro;//수업 받았는지 확인
 int back;
 
+void stat()
+{
+	printf("힘:%d, 체력:%d, 지력:%d, 운: %d\n\n민첩:%d, wealth: %d, 외모:%d, 돈:%d\n\n", Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money);
+	return;
+}
+
 int Stat_Limit(int stat) {
 	if (stat <= Stat_min) {
 		stat = 0;
@@ -59,6 +65,7 @@ void week()
 home: {
 	system("cls");
 	printf_s("기숙사 입니다                 %d\n\n", day);
+	stat();
 	printf_s("1. 잠자기 \n\n2. 밥먹기\n\n9. 밖으로 나가기\n\n");
 	scanf_s("%d", &choise);
 	switch (choise)
@@ -112,7 +119,7 @@ school: {
 		  system("PAUSE");
 		  goto home;
 	  }
-  }
+}
 cafe: {
 		  system("cls");
 		  printf_s("신관입니다\n\n");
@@ -127,7 +134,7 @@ cafe: {
 		  case(9) :
 			  goto school;
 		  }
-	  }
+}
 food: {
 			system("cls");
 			printf_s("식당입니다\n\n");
@@ -154,9 +161,9 @@ food: {
 			}
 		}
 club: {
-			  system("cls");
+	  system("cls");
 			  printf_s("동아리방입니다\n\n");
-		  }
+}
 classroom: {
 				printf_s("교양동 입니다\n\n");
 				printf_s("1. 수업 듣기\n\n9. 밖으로 나가기\n\n");
@@ -169,21 +176,22 @@ classroom: {
 				case(9) :
 					goto school;
 				}
-			}
+}
+		   //공대에서 주로 진행
 eng_univ: {
- printf_s("공대4호관 입니다\n\n");
+					   printf_s("공대4호관 입니다\n\n");
 					   goto eng_class;
 				   }
-eng_class: {
+						 eng_class: {
 							 printf_s("교실 입니다\n\n");
 							 goto eng_room;
-}
-eng_room: {
+						 }
+								eng_room: {
 									printf_s("과방 입니다\n\n");
 									class_pro++;
 									goto home;
 								}
-lib: {
+									  lib: {
 										  printf_s("중앙 도서관 입니다\n\n");
 									  }
 }
@@ -224,7 +232,7 @@ void main()
 	{
 		if (day <= 60)
 		{
-			if (day % 3 == 1)
+			if (day % 3 == 2)
 			{
 				weekend();
 			}
