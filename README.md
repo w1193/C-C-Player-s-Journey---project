@@ -23,5 +23,5 @@ and this project will be made in Korean
  ##Main Game
     ```
     * Stat
-        Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money
+          Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money
     ```
