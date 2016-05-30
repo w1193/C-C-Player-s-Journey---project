@@ -1,0 +1,3 @@
+﻿  벽돌깨기.cpp
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\brick\screen.c(41): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+  Brick.vcxproj -> C:\Users\samsungpc\Documents\opopop\C-C-Player-s-Journey---project\Brick\Debug\Brick.exe
