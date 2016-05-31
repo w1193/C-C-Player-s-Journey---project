@@ -67,10 +67,10 @@ typedef struct _StageInfo // 스테이지 초기화 시, Init에서 초기화.
 GameState p_GameState = START; // 최초의 상태 : START
 int p_Goal, p_Stage=-1, p_GameStartTime; // GoalIn? , 현 스테이지, 게임 시작 시간
 
-char StateString[100]; // 게임 상태 저장
+char StateString[500]; // 게임 상태 저장
 clock_t p_OldTime; // 게임 상태 전이를 위한 이동 시각 저장
 
-StageInfo p_StageInfo[] = { { 2, 1000 * 20, 1, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
+StageInfo p_StageInfo[] = { { 2, 1000 * 20, 2, 20, 3, 300,2}, {10, 1000 * 30, 2, 20, 5, 300,2 } };
 EFFECT Effect;
 GOAL Goal;
 BALL Ball;
@@ -94,7 +94,7 @@ void Init() {
 
 	//플레이어
 	Player.CenterX = 3; //주인공 X 중심 좌표
-	Player.CenterY = 0; //주인공 Y 중심 좌표 
+	Player.CenterY = 15; //주인공 Y 중심 좌표 
 	Player.MoveX = 20; // 주인공 이동 X좌표 초기화
 	Player.Y = Player.MoveY = 22; // 주인공 이도 Y좌표 초기화
 	Player.X = Player.MoveX - Player.CenterX; //주인공 캐릭터 출력 좌표
@@ -201,8 +201,19 @@ void Update()
 	{
 	case START: // 게임 시작 화면
 
-		sprintf(StateString, "\t[게임 시작 화면] \n\n \t\t\t게임 시작 : SPACE BAR \n\t\t\t게임 종료 : q");
-		
+		sprintf(StateString, "\t  [슛골인 게임] \n\n"
+				"\t\t===================================\n\n"
+				"\t\t공을 던져 골대에 넣는 게임입니다.\n"
+				"\t\t각 스테이지마다 제한 시간과 목표 점수가 \n"
+				"\t\t있습니다.\n"
+				"\t\t제한 시간과 목표 점수는 게임 실행 전,\n"
+				"\t\t또는 실행 중에 제시 됩니다.\n\n"
+				"\t\t===================================\n\n"
+				"\t\t\t  - 조 작 법 -\n\n"
+				"\t\t이동 : 방향키 | 공 던지기 : SPACE BAR\n\n"
+				"\t\t-----------------------------------\n"
+				"\t\t게임 시작 : SPACE BAR | 게임 종료 : q\n\n\n\n\n");
+
 		break;
 
 	case INIT: // case 초기화
@@ -228,7 +239,7 @@ void Update()
 		break;
 
 	case READY: // READY 상태
-		sprintf(StateString, "[READY] %d 스테이지 \n \t\t\t\t\t\t목표 Goal : %d", p_Stage,p_GoalCount);
+		sprintf(StateString, "[READY] %d 스테이지 \n \t\t\t\t\t\t목표 Goal : %d\n \t\t\t\t\t\t제한 시간 : %d초", p_Stage,p_GoalCount, p_LimitTime/1000);
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
@@ -262,11 +273,11 @@ void Update()
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
-		//	++p_Stage; // Stage 레벨 증가
 		}
 		break;
 	case FAILED: // FAILED 상태. 미션 실패
-		sprintf(StateString, "스테이지 %d 미션 실패. 재도전? (Y/N)",p_Stage); // Y,N 입력. Stage 레벨 그대로.
+		sprintf(StateString, "스테이지 %d 미션 실패.\n"
+							"\t\t아무 키나 누르면, 결과창이 나옵니다.",p_Stage); // Y,N 입력. Stage 레벨 그대로.
 		if (CurTime - p_OldTime > 3000)
 		{
 			p_OldTime = CurTime;
@@ -306,7 +317,7 @@ void Render()
 		}
 
 		ScreenPrint(Ball.bMoveX, Ball.bMoveY, "◎");
-		sprintf(string, "주인공 이동좌표 : %d, %d              점 수 : %d               초기화 : R 버튼 ", Player.MoveX, Player.Y, BallCount);
+		sprintf(string, "주인공 이동좌표 : %d, %d              점 수 : %d/%d               초기화 : R 버튼 ", Player.MoveX, Player.Y, BallCount,p_GoalCount);
 		ScreenPrint(0, 0, string);
 
 
@@ -369,12 +380,34 @@ int main(void) {
 			if (p_GameState == START)
 			{
 				if (Key == SPACE)
-				{
 					p_GameState = INIT;
-				}
 			}
 
-			// FAILED , SUCCESS 상태에서의 키 조작
+			// SUCCESS 상태에서의 키 조작
+			if (p_GameState == SUCCESS)
+			{
+				p_OldTime = clock();
+				switch (Key)
+				{
+				case 'Y': case 'y':
+					++p_Stage;
+					p_GameState = INIT;
+					break;
+				case 'N': case 'n':
+					p_GameState = RESULT;
+					break;
+				}
+			}
+			// FAILED 상태에서의 키 조작
+			if (p_GameState == FAILED)
+			{
+				p_GameState = RESULT;
+				p_OldTime = clock();
+				p_Stage--;
+
+				getchar();
+			}
+			/*
 			if (p_GameState == FAILED || p_GameState==SUCCESS)
 			{
 				switch (Key)
@@ -382,9 +415,11 @@ int main(void) {
 				case 'Y': case 'y':
 					if (p_GameState == SUCCESS)
 					{
-						p_Stage++; // 미션성공 + 게임진행 원할 시, 스테이지 레벨 증가
+						++p_Stage; // 미션성공 + 게임진행 원할 시, 스테이지 레벨 증가
+						p_GameState = INIT;
 					}
-					p_GameState = INIT;
+					if (p_GameState==FAILED)
+						p_GameState = RESULT;
 					p_OldTime = clock();
 					break;
 				case 'N': case 'n':
@@ -397,7 +432,7 @@ int main(void) {
 					break;
 				}
 			}
-
+			*/
 			switch (Key)
 			{
 				// S F Y
@@ -444,6 +479,7 @@ int main(void) {
 					Ball.ReadyB = 1;
 					Ball.bMoveX = Player.MoveX;
 					Ball.bMoveY = Player.MoveY - 1;
+					p_GameState = INIT;
 				}
 				break;
 			}
