@@ -34,6 +34,7 @@ typedef struct _DOT
 	int X, Y; // 점의 X, Y 좌표
 	int A, K; // 일차함수의 기울기, y절편
 	int Crash; // 벽에 충돌?
+	clock_t MoveTime, OldTime;
 }DOT;
 
 // 전역 변수 선언
@@ -48,7 +49,6 @@ char Dot_Shape[] = "·";
 
 // Time() 변수 선언
 
-clock_t CurTime, OldTime = clock();
 
 void KeyControl(int key)
 {
@@ -72,7 +72,7 @@ void KeyControl(int key)
 		break;
 /*
 	case SPACE:
-
+		게임 시작 / 일시정지 
 		break;
 		*/
 	}
@@ -93,7 +93,7 @@ void TimeTerm(int term)
 		}
 	}
 }
-void DrawField(void) // 필드 틀 제시. (수정 필요)
+void DrawField(void) // 보드라인 제시. (수정 필요)
 {
 	int x, y;
 
@@ -142,34 +142,35 @@ void Init()
 	Player.Y = 10;
 
 	// DOT[] 초기화
-	
+
 	srand((unsigned)time(NULL));
 
 	for (int i = 0; i < DotNum; i++)
 	{
-		Dot[i].A = rand()%5;
-		Dot[i].K = rand()%9;
-		
+		Dot[i].A = rand() % 5;
+		Dot[i].K = rand() % 9;
+
 		Dot[i].X = 0;
 		Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
+
+		Dot[i].OldTime = clock();
+		Dot[i].MoveTime = Dot[i].A * 0.1 * 1000;
 	}
-	
 }
 
 void Update()
 {
+	clock_t CurTime = clock();
 
 	for (int i = 0; i < DotNum; i++)
 	{
 
-		CurTime = clock();
-
-		if (CurTime - OldTime > Dot[i].A * 0.1 * 1000)
+		if (CurTime - Dot[i].OldTime > Dot[i].MoveTime)
 		{
 				Dot[i].X++;
 				Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
 				
-				OldTime = CurTime;
+				Dot[i].OldTime = CurTime;
 		}
 	}
 }
