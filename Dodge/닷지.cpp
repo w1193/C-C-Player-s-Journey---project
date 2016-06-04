@@ -5,7 +5,7 @@
 #include "Screen.c"
 #pragma warning(disable:4996)
 
-#define DotNum 10
+#define DotNum 5
 #define BOARD_WIDTH 35       // 게임 영역의 가로(열) >= 10 : ━
 #define BOARD_HEIGHT 20      // 게임 영역의 세로(행) >= 20 : | 
 
@@ -36,6 +36,8 @@ typedef struct _DOT
 	int Crash; // 벽에 충돌?
 }DOT;
 
+// 전역 변수 선언
+
 PLAYER Player;
 DOT Dot[DotNum];
 
@@ -43,6 +45,10 @@ DOT Dot[DotNum];
 
 char Player_Shape[] = {"*"};
 char Dot_Shape[] = "·";
+
+// Time() 변수 선언
+
+clock_t CurTime, OldTime = clock();
 
 void KeyControl(int key)
 {
@@ -72,7 +78,7 @@ void KeyControl(int key)
 	}
 }
 
-void TimeTerm()
+void TimeTerm(int term)
 {
 	clock_t CurTime, OldTime;
 
@@ -81,7 +87,7 @@ void TimeTerm()
 	{
 		CurTime = clock();
 
-		if (CurTime - OldTime > 0.1 * 1000)
+		if (CurTime - OldTime > term * 0.1*1000)
 		{
 			break;
 		}
@@ -94,12 +100,12 @@ void DrawField(void) // 필드 틀 제시. (수정 필요)
 	//위 보드 라인
 	for (x = 1; x < BOARD_WIDTH ; x++)
 	{
-		ScreenPrint(x,0," ━ ");
+		ScreenPrint(x,0,"━");
 	}
 	//아래 보드 라인
 	for (x = 1; x < BOARD_WIDTH ; x++)
 	{
-		ScreenPrint(x, BOARD_HEIGHT, " ━ ");
+		ScreenPrint(x, BOARD_HEIGHT, "━");
 	}
 	//왼쪽 보드 라인
 	for (y = 0; y < BOARD_HEIGHT + 1; y++)
@@ -137,56 +143,67 @@ void Init()
 
 	// DOT[] 초기화
 	
-	//int i=0;
 	srand((unsigned)time(NULL));
 
 	for (int i = 0; i < DotNum; i++)
 	{
-		Dot[i].A = rand()%9;
+		Dot[i].A = rand()%5;
 		Dot[i].K = rand()%9;
 		
 		Dot[i].X = 0;
-		Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K;
+		Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
 	}
 	
 }
 
 void Update()
 {
-	for (int i = 0; i < DotNum; i++)
-	{
-		Dot[i].X++;
-	}
 
 	for (int i = 0; i < DotNum; i++)
 	{
-		if (Dot[i].X > BOARD_WIDTH)
-		{
-			Dot[i].X = Dot[i].Y=0;
-		}
-		if (Dot[i].Y > BOARD_HEIGHT || Dot[i].Y < 0)
-		{
-			Dot[i].X = Dot[i].Y = 0;
-		}
 
+		CurTime = clock();
+
+		if (CurTime - OldTime > Dot[i].A * 0.1 * 1000)
+		{
+				Dot[i].X++;
+				Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
+				
+				OldTime = CurTime;
+		}
 	}
 }
 
-void Render()
-{
-	ScreenClear();
-
-	// 화면 표시
-	DrawField();
-
-	ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
-
-	for (int i = 0; i < DotNum; i++)
+	void Render()
 	{
-		ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape); // 점 표시
-	}
+		ScreenClear();
 
-	ScreenFlipping();
+		// 클리핑 (수정 필요)
+
+		for (int i = 0; i < DotNum; i++)
+		{
+			if (Dot[i].X > BOARD_WIDTH)
+			{
+				Dot[i].X = Dot[i].Y = 0;
+			}
+			if (Dot[i].Y > BOARD_HEIGHT || Dot[i].Y < 0)
+			{
+				Dot[i].X = Dot[i].Y = 0;
+			}
+
+		}
+
+		// 렌더링
+
+		DrawField();
+
+		ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
+
+		for (int i = 0; i < DotNum; i++)
+		{
+			ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape); // 점 표시
+		}
+		ScreenFlipping();
 }
 
 void Release()
@@ -216,7 +233,6 @@ void main()
 		Update();
 		Render();
 
-	//	TimeTerm();
 	}
 
 	Release();
