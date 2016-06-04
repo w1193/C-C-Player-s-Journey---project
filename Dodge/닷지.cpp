@@ -5,9 +5,9 @@
 #include "Screen.c"
 #pragma warning(disable:4996)
 
-#define DotNum 5 // Dot의 개수
+#define DotNum 15 // Dot의 개수
 #define BOARD_WIDTH 80      // 화면의 너비
-#define BOARD_HEIGHT 27      // 화면의 높이
+#define BOARD_HEIGHT 25      // 화면의 높이
 
 // 열거형 선언
 
@@ -37,6 +37,7 @@ typedef struct _DOT
 	int A, K; // 일차함수의 기울기, y절편
 	int Crash; // 벽에 충돌?
 	clock_t MoveTime, OldTime;
+	int Direction; // 이동방향
 }DOT;
 
 // 전역 변수 선언
@@ -77,19 +78,23 @@ void KeyControl(int key) // 입력 키 처리
 	switch (key)
 	{
 	case UP:
-		Player.Y--;
+		if (!Player.Y==0)
+			Player.Y--;
 		break;
 
 	case DOWN:
-		Player.Y++;
+		if (!(Player.Y==(BOARD_HEIGHT-1)))
+			Player.Y++;
 		break;
 
 	case LEFT:
-		Player.X--;
+		if (!Player.X==0)
+			Player.X--;
 		break;
 
 	case RIGHT:
-		Player.X++;
+		if (!(Player.X==(BOARD_WIDTH-1)))
+			Player.X++;
 		break;
 /*
 	case SPACE:
@@ -138,6 +143,9 @@ void Init()
 	{
 		Dot[i].A = rand() % 5;
 		Dot[i].K = rand() % 9;
+		
+		// Dot 위치 분배
+		
 		if (i % 2 == 1)
 		{
 			Dot[i].X = 0;
@@ -148,8 +156,18 @@ void Init()
 			Dot[i].X = rand() % BOARD_WIDTH;
 			Dot[i].Y = 0;
 		}
-			Dot[i].OldTime = clock();
-			Dot[i].MoveTime = Dot[i].A * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
+
+		// Dot 방향 설정
+
+		if (0 <= Dot[i].X <= BOARD_WIDTH / 2)
+			Dot[i].Direction = 1; // 방향 : →
+		else
+			Dot[i].Direction = -1; // 방향 : ←
+
+		// Dot 시간 설정
+
+		Dot[i].OldTime = clock();
+		Dot[i].MoveTime = Dot[i].A * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
 		
 	}
 }
@@ -163,10 +181,20 @@ void Update()
 
 		if (CurTime - Dot[i].OldTime > Dot[i].MoveTime) // MoveTime이 지나야 Update. -> 속도 조절
 		{
-				Dot[i].X++;
-				Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
-				
-				Dot[i].OldTime = CurTime;
+			// 좌표 변환 시작
+
+			if (Dot[i].X == 0 && Dot[i].X == BOARD_HEIGHT-1)
+			{
+				Dot[i].Direction *= -1; // 벽에 닿으면 방향 변화
+			}
+
+			Dot[i].X += Dot[i].Direction;
+			Dot[i].Y = Dot[i].Direction * (Dot[i].A * Dot[i].X + Dot[i].K); // 일차함수 y=ax+k
+
+			// 시간 재설정
+
+			Dot[i].OldTime = CurTime;
+			
 		}
 	}
 }
@@ -177,7 +205,7 @@ void Render()
 
 	// 클리핑 (수정 필요)
 
-	Clipping();
+	//Clipping();
 
 	// 렌더링
 
