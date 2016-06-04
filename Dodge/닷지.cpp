@@ -5,9 +5,9 @@
 #include "Screen.c"
 #pragma warning(disable:4996)
 
-#define DotNum 5
-#define BOARD_WIDTH 35       // 게임 영역의 가로(열) >= 10 : ━
-#define BOARD_HEIGHT 20      // 게임 영역의 세로(행) >= 20 : | 
+#define DotNum 5 // Dot의 개수
+#define BOARD_WIDTH 80      // 화면의 너비
+#define BOARD_HEIGHT 27      // 화면의 높이
 
 // 열거형 선언
 
@@ -27,6 +27,8 @@ typedef struct _PLAYER
 	int X, Y; // 플레이어 캐릭터의 X, Y 좌표
 	clock_t MoveTime;
 	int InStop; // Stop상태? OR Move 상태?
+	int Life; // Life.
+	int Crash; // Dot과의 충돌. if (Crash==1) -> Life--; Crash=0;
 }PLAYER;
 
 typedef struct _DOT
@@ -42,15 +44,34 @@ typedef struct _DOT
 PLAYER Player;
 DOT Dot[DotNum];
 
+char String[100];
+
 // 플레이어와 점의 모양 
 
 char Player_Shape[] = {"*"};
 char Dot_Shape[] = "·";
 
-// Time() 변수 선언
+// 함수 설정
 
+void Clipping() // 클리핑
+{
 
-void KeyControl(int key)
+	if (Player.X < 0)
+	{
+		ScreenPrint(0, Player.Y, Player_Shape);
+	}
+	else if (Player.X + 1 > 79)
+	{
+		ScreenPrint(Player.X, Player.Y, Player_Shape);
+	}
+	else 
+	{
+		ScreenPrint(Player.X, Player.Y, Player_Shape);
+	}
+
+}
+
+void KeyControl(int key) // 입력 키 처리
 {
 
 	switch (key)
@@ -93,42 +114,7 @@ void TimeTerm(int term)
 		}
 	}
 }
-void DrawField(void) // 보드라인 제시. (수정 필요)
-{
-	int x, y;
 
-	//위 보드 라인
-	for (x = 1; x < BOARD_WIDTH ; x++)
-	{
-		ScreenPrint(x,0,"━");
-	}
-	//아래 보드 라인
-	for (x = 1; x < BOARD_WIDTH ; x++)
-	{
-		ScreenPrint(x, BOARD_HEIGHT, "━");
-	}
-	//왼쪽 보드 라인
-	for (y = 0; y < BOARD_HEIGHT + 1; y++)
-	{
-
-		if (y == BOARD_HEIGHT)
-			ScreenPrint(0, y, "┗");
-		else if (y == 0)
-			ScreenPrint(0, y, "┏");
-		else
-			ScreenPrint(0,y,"┃");
-	}
-	//오른쪽 보드 라인
-	for (y = 0; y < BOARD_HEIGHT + 1; y++)
-	{
-		if (y == BOARD_HEIGHT)
-			ScreenPrint(BOARD_WIDTH, y, "┛");
-		else if (y ==0)
-			ScreenPrint(BOARD_WIDTH, y, "┓");
-		else
-			ScreenPrint(BOARD_WIDTH,y,"┃");
-	}
-}
 
 // 프레임워크 함수 시작
 
@@ -141,6 +127,9 @@ void Init()
 	Player.X =10;
 	Player.Y = 10;
 
+	Player.Life = 3;
+	Player.Crash = 0; 
+
 	// DOT[] 초기화
 
 	srand((unsigned)time(NULL));
@@ -149,12 +138,19 @@ void Init()
 	{
 		Dot[i].A = rand() % 5;
 		Dot[i].K = rand() % 9;
-
-		Dot[i].X = 0;
-		Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
-
-		Dot[i].OldTime = clock();
-		Dot[i].MoveTime = Dot[i].A * 0.1 * 1000;
+		if (i % 2 == 1)
+		{
+			Dot[i].X = 0;
+			Dot[i].Y = rand() % BOARD_HEIGHT; // Dot의 이동위치를 나타내는 일차함수 y=ax+k
+		}
+		else
+		{
+			Dot[i].X = rand() % BOARD_WIDTH;
+			Dot[i].Y = 0;
+		}
+			Dot[i].OldTime = clock();
+			Dot[i].MoveTime = Dot[i].A * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
+		
 	}
 }
 
@@ -165,7 +161,7 @@ void Update()
 	for (int i = 0; i < DotNum; i++)
 	{
 
-		if (CurTime - Dot[i].OldTime > Dot[i].MoveTime)
+		if (CurTime - Dot[i].OldTime > Dot[i].MoveTime) // MoveTime이 지나야 Update. -> 속도 조절
 		{
 				Dot[i].X++;
 				Dot[i].Y = Dot[i].A * Dot[i].X + Dot[i].K; // 일차함수 y=ax+k
@@ -175,36 +171,24 @@ void Update()
 	}
 }
 
-	void Render()
+void Render()
+{
+	ScreenClear();
+
+	// 클리핑 (수정 필요)
+
+	Clipping();
+
+	// 렌더링
+
+	ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
+
+	for (int i = 0; i < DotNum; i++)
 	{
-		ScreenClear();
+		ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape); // 점 표시
+	}
 
-		// 클리핑 (수정 필요)
-
-		for (int i = 0; i < DotNum; i++)
-		{
-			if (Dot[i].X > BOARD_WIDTH)
-			{
-				Dot[i].X = Dot[i].Y = 0;
-			}
-			if (Dot[i].Y > BOARD_HEIGHT || Dot[i].Y < 0)
-			{
-				Dot[i].X = Dot[i].Y = 0;
-			}
-
-		}
-
-		// 렌더링
-
-		DrawField();
-
-		ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
-
-		for (int i = 0; i < DotNum; i++)
-		{
-			ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape); // 점 표시
-		}
-		ScreenFlipping();
+	ScreenFlipping();
 }
 
 void Release()
