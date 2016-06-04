@@ -37,7 +37,7 @@ typedef struct _DOT
 	int A, K; // 일차함수의 기울기, y절편
 	int Crash; // 벽에 충돌?
 	clock_t MoveTime, OldTime;
-	int Direction; // 이동방향
+	int DirectionX,DirectionY; // 이동방향
 }DOT;
 
 // 전역 변수 선언
@@ -54,25 +54,7 @@ char Dot_Shape[] = "·";
 
 // 함수 설정
 
-void Clipping() // 클리핑
-{
-
-	if (Player.X < 0)
-	{
-		ScreenPrint(0, Player.Y, Player_Shape);
-	}
-	else if (Player.X + 1 > 79)
-	{
-		ScreenPrint(Player.X, Player.Y, Player_Shape);
-	}
-	else 
-	{
-		ScreenPrint(Player.X, Player.Y, Player_Shape);
-	}
-
-}
-
-void KeyControl(int key) // 입력 키 처리
+void KeyControl(int key) // 키 입력 처리
 {
 
 	switch (key)
@@ -157,12 +139,17 @@ void Init()
 			Dot[i].Y = 0;
 		}
 
-		// Dot 방향 설정
+		// 초기 Dot 방향 설정
 
-		if (0 <= Dot[i].X <= BOARD_WIDTH / 2)
-			Dot[i].Direction = 1; // 방향 : →
+		if (0 <= Dot[i].X  && Dot[i].X<= BOARD_WIDTH / 2)
+			Dot[i].DirectionX = 1; // 방향 : →
 		else
-			Dot[i].Direction = -1; // 방향 : ←
+			Dot[i].DirectionX = -1; // 방향 : ←
+
+		if (0 <= Dot[i].Y  && Dot[i].Y <= BOARD_HEIGHT / 2)
+			Dot[i].DirectionY = 1; // 방향 : →
+		else
+			Dot[i].DirectionY = -1; // 방향 : ←
 
 		// Dot 시간 설정
 
@@ -183,13 +170,18 @@ void Update()
 		{
 			// 좌표 변환 시작
 
-			if (Dot[i].X == 0 && Dot[i].X == BOARD_HEIGHT-1)
+			if ((Dot[i].X == 0) || (Dot[i].X == BOARD_HEIGHT-1))
 			{
-				Dot[i].Direction *= -1; // 벽에 닿으면 방향 변화
+				Dot[i].DirectionX *= -1; // 벽에 닿으면 방향 변화
+				Dot[i].K = Dot[i].Y;
 			}
-
-			Dot[i].X += Dot[i].Direction;
-			Dot[i].Y = Dot[i].Direction * (Dot[i].A * Dot[i].X + Dot[i].K); // 일차함수 y=ax+k
+			if ((Dot[i].Y == 0) || (Dot[i].Y == BOARD_HEIGHT - 1))
+			{
+				Dot[i].DirectionY *= -1;
+				Dot[i].K = (-1) * Dot[i].A * Dot[i].X;
+			}
+			Dot[i].X += Dot[i].DirectionX;
+			Dot[i].Y = Dot[i].DirectionY * (Dot[i].A * Dot[i].X + Dot[i].K); // 일차함수 y=ax+k
 
 			// 시간 재설정
 
@@ -203,9 +195,6 @@ void Render()
 {
 	ScreenClear();
 
-	// 클리핑 (수정 필요)
-
-	//Clipping();
 
 	// 렌더링
 
