@@ -128,15 +128,34 @@ void Init()
 		
 		// Dot 위치 분배
 		
-		if (i % 2 == 1)
+		int remainder = i % 4;
+
+		switch (remainder)
 		{
+		case 0: // x==0
 			Dot[i].X = 0;
-			Dot[i].Y = rand() % BOARD_HEIGHT; // Dot의 이동위치를 나타내는 일차함수 y=ax+k
-		}
-		else
-		{
+			Dot[i].Y = rand() % BOARD_HEIGHT;
+
+			break;
+
+		case 1: // x==WIDTH
+			Dot[i].X = BOARD_WIDTH - 1;
+			Dot[i].Y = rand() % BOARD_HEIGHT;
+
+			break;
+
+		case 2: // y==0
 			Dot[i].X = rand() % BOARD_WIDTH;
 			Dot[i].Y = 0;
+
+			break;
+
+		case 3: // y==HEIGHT
+			Dot[i].X = rand() % BOARD_WIDTH;
+			Dot[i].Y = BOARD_HEIGHT-1;
+
+			break;
+
 		}
 
 		// 초기 Dot 방향 설정
@@ -168,19 +187,22 @@ void Update()
 
 		if (CurTime - Dot[i].OldTime > Dot[i].MoveTime) // MoveTime이 지나야 Update. -> 속도 조절
 		{
-			// 좌표 변환 시작
+			// 벽에서의 변화
 
 			if ((Dot[i].X == 0) || (Dot[i].X == BOARD_HEIGHT-1))
 			{
 				Dot[i].DirectionX *= -1; // 벽에 닿으면 방향 변화
-				Dot[i].K = Dot[i].Y;
+				Dot[i].K = Dot[i].Y; // 함수 변화
 			}
 			if ((Dot[i].Y == 0) || (Dot[i].Y == BOARD_HEIGHT - 1))
 			{
 				Dot[i].DirectionY *= -1;
 				Dot[i].K = (-1) * Dot[i].A * Dot[i].X;
 			}
-			Dot[i].X += Dot[i].DirectionX;
+
+			// 좌표 이동 시작
+
+			Dot[i].X = Dot[i].X + Dot[i].DirectionX;
 			Dot[i].Y = Dot[i].DirectionY * (Dot[i].A * Dot[i].X + Dot[i].K); // 일차함수 y=ax+k
 
 			// 시간 재설정
