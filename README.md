@@ -25,4 +25,6 @@ and this project will be made in Korean
     ```
     * Stat
           Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money
+    * Places 
+          home, school, cafe, club, food, classroom, eng_univ, eng_class, eng_room, lib
     ```
