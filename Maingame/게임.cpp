@@ -71,7 +71,9 @@ void sleep()
 		case(1) :
 			day++;
 			Stamina += Stat_max / 2;
-			Stat_Limit(Stamina);//수업을 듣지않고 잠을 잤을 때 일어나는 상황
+			Intel -= 15;
+			Stat_Limit(Stamina);
+			Stat_Limit(Intel);//수업을 듣지않고 잠을 잤을 때 일어나는 상황
 			return;
 		case(2) :
 			back = 1;
@@ -101,9 +103,10 @@ home: {
 		return;
 	case(2) :
 		system("cls");
-		system("PAUSE");
 		Stamina += 5;
-		Stat_Limit(Stamina);//여기에 밥먹기 했을때 일어나는 상황
+		Stat_Limit(Stamina);
+		printf("Stamina + 5 증가 ! !\n\n");
+		system("PAUSE");//여기에 밥먹기 했을때 일어나는 상황
 		goto home;
 	case(3) :
 		system("cls");
@@ -148,7 +151,7 @@ home: {
   }
 	  cafe: {
 		  system("cls");
-		  printf_s("신관입니다\n");
+		  printf_s("신관입니다\n\n");
 		  printf("무엇을 하시겠습니까?\n\n");
 		  printf_s("1. 동아리방 가기\n\n2. 식당 가기\n\n3. 밖으로 나가기\n\n");
 		  scanf_s("%d", &choise);
@@ -164,8 +167,8 @@ home: {
 	  }
 		food: {
 			system("cls");
-			printf_s("식당입니다\n\n");
-			printf_s("이곳은 식당입니다\n\n1. 정식\n\n2. 특식\n\n3. 신관으로 돌아가기\n\n");
+			printf_s("식당입니다   현재 남은 돈 : %d\n\n", Money);
+			printf_s("이곳은 식당입니다\n\n1. 정식(2000원)\n\n2. 특식(3000원)\n\n3. 신관으로 돌아가기\n\n");
 			scanf_s("%d", &choise);
 			switch (choise)
 			{
@@ -173,7 +176,7 @@ home: {
 				system("cls");
 				if (Money > 2000)
 				{
-					printf_s("정식머금\n\n");
+					printf_s("정식 머금\n\n");
 					Money -= 2000;
 					Stamina += 10;
 					Money_Limit();
@@ -182,7 +185,7 @@ home: {
 				}
 				else
 				{
-					printf("돈이 부족합니다");
+					printf("돈이 부족합니다.\n\n");
 					system("pause");
 				}
 				goto food;
@@ -214,6 +217,23 @@ home: {
 			  printf_s("이곳에는 슬픈 전설이 있지...\n");  getchar();
 			  printf_s("알고싶나?\n");  getchar();
 			  printf_s("그럼 500원.\n");  getchar();
+			  printf_s("어떻게 하지??\n\n1. 500원을 준다\n\n2. 주지않는다\n");
+			  scanf_s("%d", &choise);
+			  switch (choise)
+			  {
+			  case(1) :
+				  Money -= 500;
+				  Money_Limit();
+				  system("cls"); getchar();
+				  printf("..........\n"); getchar();
+				  printf("헹? 속았지? 그걸 믿냨ㅋㅋㅋ\n"); getchar();
+				  printf("500원을 잃었습니다.\n"); getchar();
+				  system("PAUSE");
+				  goto cafe;
+			  case(2) :
+				  system("cls");
+				  printf("싫음 말고...\n\n");
+			  }
 			  system("PAUSE");
 			  goto cafe;
 		  }
@@ -234,7 +254,7 @@ home: {
 					Stat_Limit(Stamina);
 					Stat_Limit(Intel);//이곳에 수업 들으면 일어나는 상황
 					system("cls");
-					printf("수업이 끝났습니다.\n\n");  system("PAUSE");
+					printf(".\n.\n수업이 끝났습니다.\n\n");  system("PAUSE");
 				case(2) :
 					goto school;
 				}
@@ -264,8 +284,10 @@ home: {
 							 goto eng_univ;
 						 }
 								eng_room: {
-									system("cls");
-									printf_s("과방 입니다\n\n");
+									system("cls"); getchar();
+									printf("과방입니다.\n"); getchar();
+									printf("야생의 오픈소스가 나타났다 ! !\n"); getchar();
+									printf("으아아아아아아아아아아아아\n\n");
 									system("PAUSE");
 									class_pro++;
 									goto eng_univ;
@@ -319,11 +341,14 @@ void weekend()
 //주말
 void vacation()
 {
-	printf("방학이에염");
+	printf("방학이에염\n");
 	day++;
 	system("pause");
 }
 //방학
+void endings() {
+
+}//엔딩 삽입
 void main()
 {
 	while (day != 288)
@@ -344,4 +369,5 @@ void main()
 			vacation();
 		}
 	}
+	endings();
 }
