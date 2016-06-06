@@ -5,9 +5,10 @@
 #include "Screen.c"
 #pragma warning(disable:4996)
 
-#define DotNum 15 // Dot의 개수
+#define StageNum 15 // Stage 개수
 #define BOARD_WIDTH 80      // 화면의 너비
 #define BOARD_HEIGHT 25      // 화면의 높이
+#define Invincible 3 // 무적시간
 
 // 열거형 선언
 
@@ -20,7 +21,7 @@ enum ControlKeys
 	SPACE = 32
 };
 
-typedef enum _GAMESTATUS { START, INIT, READY, RUNNING, STOP, NEXT, RESULT } GAMESTATUS;
+typedef enum _GAMESTATUS { START, INIT, READY, RUNNING, STOP, JUDGMENT, NEXT, RESULT } GAMESTATUS;
 
 // 구조체 선언
 
@@ -42,14 +43,22 @@ typedef struct _DOT
 	int DirectionX,DirectionY; // 이동방향
 }DOT;
 
+typedef struct _STAGE
+{
+	int MinSpeed, MaxSpeed; // Dot의 최소 최대 속도
+	int DotNum; // Dot의 개수
+}STAGE;
+
 // 전역 변수 선언
 
 PLAYER Player;
-DOT Dot[DotNum];
+DOT Dot[];
+STAGE Stage[3] = { {},{},{} }; // 최소속도, 최대속도, 개수
 GAMESTATUS GameStatus;
 
 char StatString[500]; // 게임 상태 String
 int PrintTime = 3 * 1000; // 게임 상태 표시 시간
+clock_t Stat_OldTime = clock(); // PrintTime의 OldTime
 
 // 플레이어와 점의 모양 
 
@@ -85,8 +94,20 @@ void KeyControl(int key) // 키 입력 처리
 
 	case SPACE:
 		//게임 시작 / 일시정지 
-		if (GameStatus == START)
+		switch (GameStatus)
+		{
+		case START:
 			GameStatus = INIT;
+			break;
+
+		case RUNNING:
+			GameStatus = STOP;
+			break;
+
+		case STOP:
+			GameStatus = RUNNING;
+			break;
+		}
 		break;
 		
 	}
@@ -94,28 +115,15 @@ void KeyControl(int key) // 키 입력 처리
 
 void IfCrash(int i) // Crash 발생 처리
 {
-	if (Player.X == Dot[i].X)
-		Player.Life--;
-	
-	if (Player.Life==0)
-		GameStatus = STOP;
-		
-}
-
-void TimeTerm()
-{
-	clock_t CurTime, OldTime;
-
-	OldTime = clock();
-	while (1)
+	if (Player.X == Dot[i].X && Player.Y == Dot[i].Y)
 	{
-		CurTime = clock();
-
-		if (CurTime - OldTime > 10 * 0.1 * 1000)
-		{
-			break;
-		}
+		Player.Life--;
+		Dot[i].Y = 0;
 	}
+
+	if (Player.Life<=0)
+		GameStatus = NEXT;
+		
 }
 
 void MoveCoord(int i) // 좌표 이동
@@ -141,9 +149,9 @@ void MoveCoord(int i) // 좌표 이동
 
 void StatusPrint()
 {
-	clock_t CurTime, OldTime;
+	clock_t CurTime;
 
-	OldTime = CurTime = clock();
+	CurTime = clock();
 
 	switch (GameStatus)
 	{
@@ -164,29 +172,30 @@ void StatusPrint()
 		break;
 
 	case INIT:
-		/*
-		while (CurTime - OldTime < PrintTime)
+		if (CurTime - Stat_OldTime < PrintTime)
 		{
-			CurTime = clock();
 			sprintf(StatString, "INIT 화면");
 			ScreenPrint(10, 10, StatString);
 		}
-		GameStatus = READY;
-		*/
-		
-		sprintf(StatString,"INIT 화면");
-		ScreenPrint(10, 10, StatString);
-		TimeTerm();
-		GameStatus = READY;
-		
+		else
+		{
+			GameStatus = READY;
+			Stat_OldTime = CurTime;
+		}
 		
 		break;
 
 	case READY:
-		sprintf(StatString, "READY 화면");
-		ScreenPrint(10, 10, StatString);
-		TimeTerm();
-		GameStatus = RUNNING;
+		if (CurTime - Stat_OldTime < PrintTime)
+		{
+			sprintf(StatString, "REDAY 화면");
+			ScreenPrint(10, 10, StatString);
+		}
+		else
+		{
+			GameStatus = RUNNING;
+			Stat_OldTime = CurTime;
+		}
 
 		break;
 
@@ -195,10 +204,19 @@ void StatusPrint()
 		break;
 
 	case STOP:
+		sprintf(StatString, "STOP 화면");
+		ScreenPrint(10, 10, StatString);
+
+		break;
+
+	case JUDGMENT:
+		if ()
 
 		break;
 
 	case NEXT:
+		sprintf(StatString, "NEXT 화면\n");
+		ScreenPrint(10, 10, StatString);
 
 		break;
 
@@ -271,7 +289,7 @@ void Render()
 
 	if (GameStatus == RUNNING)
 	{
-		sprintf(string, "주인공 이동좌표 : %d, %d              점 수 : Test              초기화 : R 버튼\n", Player.X, Player.Y); // 멘트 수정하기
+		sprintf(string, "주인공 이동좌표 : %d, %d              Life : %d              초기화 : R 버튼\n", Player.X, Player.Y,Player.Life); // 멘트 수정하기
 		ScreenPrint(0, 0, string);
 
 		ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
