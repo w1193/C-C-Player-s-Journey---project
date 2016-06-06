@@ -61,7 +61,7 @@ GAMESTATUS GameStatus;
 
 // 스테이지 관련
 
-int Stage=2;
+int Stage=0;
 
 // 게임 상태 관련
 
@@ -273,9 +273,9 @@ void StatusPrint()
 	case INIT:
 		if (CurTime - Stat_OldTime < PrintTime)
 		{
-			// Dot 초기화
 
-			DotInit();
+			DotInit(); // Dot 초기화
+			Player.Life = 3;
 
 			sprintf(StatString, "INIT 화면");
 			ScreenPrint(10, 10, StatString);
@@ -313,18 +313,34 @@ void StatusPrint()
 		break;
 
 	case JUDGMENT:
-	//	if ()
+
 
 		break;
 
 	case NEXT:
-		sprintf(StatString, "NEXT 화면\n");
-		ScreenPrint(10, 10, StatString);
+		if (CurTime - Stat_OldTime < PrintTime)
+		{
+			sprintf(StatString, "NEXT 화면");
+			ScreenPrint(10, 10, StatString);
+		}
+		else
+		{
+			Stat_OldTime = CurTime;
 
+			if (Stage < 2)
+			{
+				Stage++;
+				GameStatus = INIT;
+			}
+			else
+				GameStatus = RESULT;
+		}
 		break;
 
 	case RESULT:
-
+		sprintf(StatString, "RESULT 화면");
+		ScreenPrint(10, 10, StatString);
+		
 		break;
 	}
 }

@@ -18,7 +18,7 @@
     <ClCompile Include="..\Screen.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\비피하기2.cpp">
+    <ClCompile Include="..\비피하기.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
