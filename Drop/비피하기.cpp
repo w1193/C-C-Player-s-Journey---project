@@ -150,23 +150,23 @@ void MoveCoord(int i) // 좌표 이동
 			if (Dot[i].Y == BOARD_HEIGHT - 1)
 				Dot[i].Y = 2;
 		}
-		if (i >= DotNum && i < DotNum*2) // ↑
+		if ((i >= DotNum) && (i < (DotNum*2))) // ↑
 		{
 			Dot[i].Y--;
 			if (Dot[i].Y == 2)
 				Dot[i].Y = BOARD_HEIGHT - 1;
 		}
-		if (i >= DotNum*2 && i < DotNum*3) // →
+		if ((i >= (DotNum*2)) && (i < (DotNum*3))) // →
 		{
 			Dot[i].X++;
-			if (Dot[i].X == BOARD_WIDTH - 1)
+			if (Dot[i].X == BOARD_WIDTH - 2)
 				Dot[i].X = 0;
 		}
-		if (i >= DotNum*3 && i < DotNum*4) // ←
+		if ((i >= (DotNum*3)) && (i < (DotNum*4))) // ←
 		{
 			Dot[i].X--;
 			if (Dot[i].X == 0)
-				Dot[i].X = BOARD_WIDTH - 1;
+				Dot[i].X = BOARD_WIDTH - 2;
 		}
 
 		// 시간 재설정
@@ -203,7 +203,7 @@ void DotInit()
 		{
 			// X Y 좌표 초기화
 
-			Dot[i].X = BOARD_WIDTH - 1;
+			Dot[i].X = BOARD_WIDTH - 2;
 			Dot[i].Y = rand() % BOARD_HEIGHT;
 
 			// Dot 시간 & 속도 설정
@@ -368,9 +368,14 @@ void Init()
 
 void Update()
 {
+	int temp;
+	if (Stage == 2)
+		temp = 4;
+	else
+		temp = Stage + 1;
 	if (GameStatus == RUNNING)
 	{
-		for (int i = 0; i < DotNum; i++)
+		for (int i = 0; i < DotNum*temp; i++)
 		{
 			MoveCoord(i); // 좌표이동
 
