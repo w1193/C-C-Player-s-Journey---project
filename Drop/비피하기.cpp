@@ -6,10 +6,10 @@
 #pragma warning(disable:4996)
 
 #define DotNum 15 // Dot의 개수
-#define FirstDot 70 // 스테이지0의 Dot 개수
 #define StageNum 3 // Stage 개수
 #define BOARD_WIDTH 80      // 화면의 너비
 #define BOARD_HEIGHT 25      // 화면의 높이
+#define Invincible 3 // 무적시간
 
 // 열거형 선언
 
@@ -29,37 +29,40 @@ typedef enum _GAMESTATUS { START, INIT, READY, RUNNING, STOP, NEXT, RESULT } GAM
 typedef struct _PLAYER
 {
 	int X, Y; // 플레이어 캐릭터의 X, Y 좌표
-//	clock_t MoveTime;
+			  //	clock_t MoveTime;
 	int InStop; // Stop상태? OR Move 상태?
 	int Life; // Life.
-//	int Crash; // Dot과의 충돌. if (Crash==1) -> Life--; Crash=0;
+			  //	int Crash; // Dot과의 충돌. if (Crash==1) -> Life--; Crash=0;
 }PLAYER;
 
 typedef struct _DOT
 {
 	int X, Y; // 점의 X, Y 좌표
+			  //	int Crash; // 벽에 충돌?
 	clock_t MoveTime, OldTime;
 	clock_t	Speed; // 속도
-	int DirectionX,DirectionY; // 이동방향
+	int DirectionX, DirectionY; // 이동방향
 }DOT;
-/*
-typedef struct _STAGE
+
+typedef struct _STAR
 {
-	int MinSpeed, MaxSpeed; // Dot의 최소 최대 속도
-	int DotNum; // Dot의 개수
-}STAGE;
-*/
+	int X, Y; // Star의 X, Y 좌표
+	int Catch; // Player가 Star를 캐치한 횟수
+	int SumCatch; // 모든 스테이지의 Catch의 합
+}STAR;
+
 // 전역 변수 선언
 
 // 구조체 변수
 
 PLAYER Player;
-DOT Dot[DotNum*4];
+DOT Dot[DotNum * 4];
+STAR Star;
 GAMESTATUS GameStatus;
 
 // 스테이지 관련
 
-int Stage=0;
+int Stage = 0;
 
 // 게임 상태 관련
 
@@ -67,10 +70,11 @@ char StatString[500]; // 게임 상태 String
 int PrintTime = 3 * 1000; // 게임 상태 표시 시간
 clock_t Stat_OldTime = clock(); // PrintTime의 OldTime
 
-// 플레이어와 점의 모양 
+// 화면에 표시될 모양 
 
-char Player_Shape[] = {"*"};
-char Dot_Shape[4][3] = { {"↓"},{"↑"},{"→"},{"←"} };
+char Player_Shape[] = { "*" };
+char Dot_Shape[4][3] = { { "↓" },{ "↑" },{ "→" },{ "←" } };
+char Star_Shape[] = { "★" };
 
 // 함수 설정
 
@@ -79,7 +83,6 @@ void KeyControl(int key) // 키 입력 처리
 
 	switch (key)
 	{
-		
 	case UP:
 		if (Stage == 2)
 		{
@@ -87,7 +90,7 @@ void KeyControl(int key) // 키 입력 처리
 				Player.Y--;
 		}
 		break;
-		
+
 	case DOWN:
 		if (Stage == 2)
 		{
@@ -95,14 +98,14 @@ void KeyControl(int key) // 키 입력 처리
 				Player.Y++;
 		}
 		break;
-		
+
 	case LEFT:
-		if (!Player.X==0)
+		if (!Player.X == 0)
 			Player.X--;
 		break;
 
 	case RIGHT:
-		if (!(Player.X==(BOARD_WIDTH-1)))
+		if (!(Player.X == (BOARD_WIDTH - 1)))
 			Player.X++;
 		break;
 
@@ -123,86 +126,98 @@ void KeyControl(int key) // 키 입력 처리
 			break;
 		}
 		break;
-		
+
 	}
 }
 
 void IfCrash(int i) // Crash 발생 처리
 {
-	if ((Player.X == Dot[i].X && Player.Y == Dot[i].Y) || ( (Player.X-1) == Dot[i].X && Player.Y == Dot[i].Y) )
+	if ((Player.X == Dot[i].X && Player.Y == Dot[i].Y) || ((Player.X - 1) == Dot[i].X && Player.Y == Dot[i].Y))
 	{
 		Player.Life--;
 		Dot[i].Y = 0;
 	}
 
-	if (Player.Life<=0)
+	if (Player.Life <= 0)
 		GameStatus = NEXT;
-		
+
 }
 
+void StarInit()
+{
+	if (Stage == 2)
+	{
+		Star.X = rand() % BOARD_WIDTH;
+		Star.Y = rand() % BOARD_HEIGHT;
+	}
+	else
+	{
+		Star.X = rand() % BOARD_WIDTH;
+		Star.Y = Player.Y;
+	}
+}
 void MoveCoord(int i) // 좌표 이동
 {
 	clock_t CurTime = clock();
-	
+
+	if ((Player.X == Star.X && Player.Y == Star.Y) || ((Player.X - 1) == Star.X && Player.Y == Star.Y))
+	{
+		Star.Catch++;
+		Star.SumCatch++;
+
+		StarInit();
+	}
+
 	if (CurTime - Dot[i].OldTime > Dot[i].MoveTime) // MoveTime이 지나야 Update. -> 속도 조절
 	{
 
 		// 좌표 이동 시작
-		if (Stage != 0)
-		{
-			if (i >= 0 && i < DotNum) // ↓
-			{
-				Dot[i].Y++;
-				if (Dot[i].Y == BOARD_HEIGHT - 1)
-				{
-					Dot[i].X = rand() % BOARD_WIDTH;
-					Dot[i].Y = 2;
 
-				}
-			}
-			if ((i >= DotNum) && (i < (DotNum * 2))) // ↑
+		if (i >= 0 && i < DotNum) // ↓
+		{
+			Dot[i].Y++;
+			if (Dot[i].Y == BOARD_HEIGHT - 1)
 			{
-				Dot[i].Y--;
-				if (Dot[i].Y == 2)
-				{
-					Dot[i].X = rand() % BOARD_WIDTH;
-					Dot[i].Y = BOARD_HEIGHT - 1;
-				}
-			}
-			if ((i >= (DotNum * 2)) && (i < (DotNum * 3))) // →
-			{
-				Dot[i].X++;
-				if (Dot[i].X == BOARD_WIDTH - 2)
-				{
-					Dot[i].X = 0;
-					Dot[i].Y = rand() % BOARD_HEIGHT;
-				}
-			}
-			if ((i >= (DotNum * 3)) && (i < (DotNum * 4))) // ←
-			{
-				Dot[i].X--;
-				if (Dot[i].X == 0)
-				{
-					Dot[i].X = BOARD_WIDTH - 2;
-					Dot[i].Y = rand() % BOARD_HEIGHT;
-				}
+				Dot[i].X = rand() % BOARD_WIDTH;
+				Dot[i].Y = 2;
+				Dot[i].Speed = rand() % 2 + 1;
 			}
 		}
-		else
+		if ((i >= DotNum) && (i < (DotNum * 2))) // ↑
 		{
-			if ((i >= 0) && (i < FirstDot)) // ↓
+			Dot[i].Y--;
+			if (Dot[i].Y == 2)
 			{
-				Dot[i].Y++;
-				if (Dot[i].Y == BOARD_HEIGHT - 1)
-				{
-					Dot[i].X = rand() % BOARD_WIDTH;
-					Dot[i].Y = 2;
-
-				}
+				Dot[i].X = rand() % BOARD_WIDTH;
+				Dot[i].Y = BOARD_HEIGHT - 1;
+				Dot[i].Speed = rand() % 2 + 1;
 			}
-			// 시간 재설정
 		}
-			Dot[i].OldTime = CurTime;
+		if ((i >= (DotNum * 2)) && (i < (DotNum * 3))) // →
+		{
+			Dot[i].X++;
+			if (Dot[i].X == BOARD_WIDTH - 2)
+			{
+				Dot[i].X = 0;
+				Dot[i].Y = rand() % BOARD_HEIGHT;
+				Dot[i].Speed = rand() % 2 + 1;
+			}
+		}
+		if ((i >= (DotNum * 3)) && (i < (DotNum * 4))) // ←
+		{
+			Dot[i].X--;
+			if (Dot[i].X == 0)
+			{
+				Dot[i].X = BOARD_WIDTH - 2;
+				Dot[i].Y = rand() % BOARD_HEIGHT;
+				Dot[i].Speed = rand() % 2 + 1;
+			}
+		}
+
+		// 시간 재설정
+
+		Dot[i].OldTime = CurTime;
+
 	}
 }
 
@@ -256,7 +271,7 @@ void DotInit()
 			Dot[i].Speed = rand() % 3 + 1; // 숫자가 작을 수록 속도가 빠르다.
 			Dot[i].MoveTime = Dot[i].Speed * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
 		}
-//	case 0: // ↓
+	case 0: // ↓
 		for (i = 0; i < DotNum; i++)
 		{
 			// X Y 좌표 초기화
@@ -270,11 +285,8 @@ void DotInit()
 			Dot[i].Speed = rand() % 3 + 1; // 숫자가 작을 수록 속도가 빠르다.
 			Dot[i].MoveTime = Dot[i].Speed * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
 		}
-			break;
-			
-	default:
 		break;
-		
+
 	}
 }
 
@@ -308,7 +320,9 @@ void StatusPrint()
 		{
 
 			DotInit(); // Dot 초기화
+			StarInit(); // Star 초기화
 			Player.Life = 3;
+			Star.Catch = 0;
 
 			sprintf(StatString, "INIT 화면");
 			ScreenPrint(10, 10, StatString);
@@ -318,7 +332,7 @@ void StatusPrint()
 			GameStatus = READY;
 			Stat_OldTime = CurTime;
 		}
-		
+
 		break;
 
 	case READY:
@@ -368,7 +382,7 @@ void StatusPrint()
 	case RESULT:
 		sprintf(StatString, "RESULT 화면");
 		ScreenPrint(10, 10, StatString);
-		
+
 		break;
 	}
 }
@@ -385,26 +399,17 @@ void Init()
 
 	// PLAYER 초기화
 
-	Player.X =10;
-	Player.Y = 10;
+	Player.X = 35;
+	Player.Y = 15;
 
 	Player.Life = 3;
 
-	// DOT[] 초기화
+	// DOT[] 초기화 -> RenDer() 함수의 StatusPrint() 함수의 case INIT:
 
-	for (int i = 0; i < FirstDot; i++)
-	{
-		// X Y 좌표 초기화
+	// Star 초기화
+	
+	Star.Catch = Star.SumCatch = 0;
 
-		Dot[i].X = rand() % BOARD_WIDTH;
-		Dot[i].Y = 2;
-
-		// Dot 시간 & 속도 설정
-
-		Dot[i].OldTime = clock();
-		Dot[i].Speed = rand() % 2 + 1; // 숫자가 작을 수록 속도가 빠르다.
-		Dot[i].MoveTime = Dot[i].Speed * 0.1 * 1000; // 각 Dot마다 다른 MoveTime 부여
-	}
 }
 
 void Update()
@@ -416,65 +421,69 @@ void Update()
 		temp = Stage + 1;
 	if (GameStatus == RUNNING)
 	{
+		for (int i = 0; i < DotNum*temp; i++)
+		{
+			MoveCoord(i); // 좌표이동
 
-			for (int i = 0; i < DotNum*temp; i++)
-			{
-				MoveCoord(i); // 좌표이동
-
-				IfCrash(i);
-			}
+			IfCrash(i);
+		}
 	}
-		
 }
 
 void Render()
 {
 	char string[100];
+	
+	char MoveLine[] = { "===============================================================================" }; // 행동범위 제한
 
 	ScreenClear();
-	
+
 	// 렌더링
 
 	StatusPrint();
 
 	if (GameStatus == RUNNING)
 	{
-		sprintf(string, "주인공 이동좌표 : %d, %d              Life : %d              초기화 : R 버튼\n", Player.X, Player.Y, Player.Life); // 멘트 수정하기
+		sprintf(string, "주인공 이동좌표 : %d, %d       Life : %d    Star : %d (총 %d )       게임 종료 : Q 버튼\n", Player.X, Player.Y, Player.Life, Star.Catch, Star.SumCatch); // 멘트 수정하기
 		ScreenPrint(0, 0, string);
 
-		ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
+		// 1, 2 스테이지에서 MoveLine
 
-		for (int i = 0; i < FirstDot; i++)
+		if (Stage != 2)
 		{
-			ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape[0]); // 점 표시
+			ScreenPrint(0, Player.Y - 1, MoveLine); 
+			ScreenPrint(0, Player.Y + 1, MoveLine); 
 		}
+
+		ScreenPrint(Player.X, Player.Y, Player_Shape); // 플레이어 표시
 
 		switch (Stage)
 		{
 		case 2:
-			for (int i = DotNum*2; i < DotNum*3; i++)
+			for (int i = DotNum * 2; i < DotNum * 3; i++)
 			{
 				ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape[2]); // 점 표시
 			}
-			for (int i = DotNum*3; i < DotNum*4; i++)
+			for (int i = DotNum * 3; i < DotNum * 4; i++)
 			{
 				ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape[3]); // 점 표시
 			}
 
 		case 1:
-			for (int i = DotNum; i < DotNum*2; i++)
+			for (int i = DotNum; i < DotNum * 2; i++)
 			{
 				ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape[1]); // 점 표시
 			}
 
-		//case 0:
+		case 0:
 			for (int i = 0; i < DotNum; i++)
 			{
 				ScreenPrint(Dot[i].X, Dot[i].Y, Dot_Shape[0]); // 점 표시
 			}
 			break;
-
 		}
+
+		ScreenPrint(Star.X, Star.Y, Star_Shape); // Star 표시
 	}
 	ScreenFlipping();
 }
@@ -497,11 +506,11 @@ void main()
 		{
 			Key = _getch();
 
-			if (Key == 'q')
+			if (Key == 'q' || Key=='Q')
 				break;
 
 			KeyControl(Key);
-			
+
 		}
 
 		Update();
