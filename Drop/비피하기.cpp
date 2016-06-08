@@ -135,7 +135,17 @@ void IfCrash(int i) // Crash 발생 처리
 	if ((Player.X == Dot[i].X && Player.Y == Dot[i].Y) || ((Player.X - 1) == Dot[i].X && Player.Y == Dot[i].Y))
 	{
 		Player.Life--;
-		Dot[i].Y = 0;
+
+		// Dot의 종류에 따른 위치 y값 초기화
+		
+		if (i >= 0 && i < DotNum) // ↓
+			Dot[i].Y = 2;
+		else if (i >= DotNum && i < DotNum * 2) // ↑
+			Dot[i].Y = BOARD_HEIGHT - 1;
+		else if (i >= DotNum * 2 && i < DotNum * 3) // →
+			Dot[i].X = 0;
+		else // ←
+			Dot[i].X = BOARD_WIDTH - 1;
 	}
 
 	if (Player.Life <= 0)
@@ -148,7 +158,7 @@ void StarInit()
 	if (Stage == 2)
 	{
 		Star.X = rand() % BOARD_WIDTH;
-		Star.Y = rand() % BOARD_HEIGHT;
+		Star.Y = rand() % ((BOARD_HEIGHT-3) + 2);
 	}
 	else
 	{
@@ -199,7 +209,7 @@ void MoveCoord(int i) // 좌표 이동
 			if (Dot[i].X == BOARD_WIDTH - 2)
 			{
 				Dot[i].X = 0;
-				Dot[i].Y = rand() % BOARD_HEIGHT;
+				Dot[i].Y = (rand() % (BOARD_HEIGHT-2))+2;
 				Dot[i].Speed = rand() % 2 + 1;
 			}
 		}
@@ -209,7 +219,7 @@ void MoveCoord(int i) // 좌표 이동
 			if (Dot[i].X == 0)
 			{
 				Dot[i].X = BOARD_WIDTH - 2;
-				Dot[i].Y = rand() % BOARD_HEIGHT;
+				Dot[i].Y = (rand() % (BOARD_HEIGHT-2))+2;
 				Dot[i].Speed = rand() % 2 + 1;
 			}
 		}
@@ -235,7 +245,7 @@ void DotInit()
 			// X Y 좌표 초기화
 
 			Dot[i].X = 0;
-			Dot[i].Y = rand() % BOARD_HEIGHT;
+			Dot[i].Y = (rand() % (BOARD_HEIGHT-2))+2;
 
 			// Dot 시간 & 속도 설정
 
@@ -249,7 +259,7 @@ void DotInit()
 			// X Y 좌표 초기화
 
 			Dot[i].X = BOARD_WIDTH - 2;
-			Dot[i].Y = rand() % BOARD_HEIGHT;
+			Dot[i].Y = (rand() % (BOARD_HEIGHT-2))+2;
 
 			// Dot 시간 & 속도 설정
 
@@ -300,17 +310,19 @@ void StatusPrint()
 	switch (GameStatus)
 	{
 	case START:
-		sprintf(StatString, "\t\t\t  [비 피하기 게임] \n\n"
+		sprintf(StatString, "\t\t\t  [화살표 피하기 게임] \n\n"
 			"\t\t===================================\n\n"
-			"\t\t떨어지는 비를 피하는 게임입니다.\n"
-			"\t\t각 스테이지 당 Life는 3 입니다. \n"
-			"\t\t점수는 버티는 시간으로 계산됩니다.\n"
+			"\t\t날아오는 화살표를 피하는 게임입니다.\n"
+			"\t\t각 스테이지 당 Life는 3 입니다.\n"
+			"\t\tLife가 0이 되면 다음 스테이지로 넘어갑니다.\n"
+			"\t\tStar(★)를 획득하면 점수가 오릅니다.\n"
 			"\t\t스테이지는 총 3레벨로 구성되어있습니다.\n\n"
 			"\t\t===================================\n\n"
 			"\t\t\t  - 조 작 법 -\n\n"
-			"\t\t이동 : 방향키 | 일시정지 : SPACE BAR\n\n"
+			"\t\t이동 : 방향키 | 일시정지 : SPACE BAR\n"
+			"\t\t＊ : 플레이어 | ★ : Star (목표)\n\n"
 			"\t\t-----------------------------------\n"
-			"\t\t게임 시작 : SPACE BAR | 게임 종료 : q\n\n");
+			"\t\t게임 시작 : SPACE BAR | 게임 종료 : q\n\n\n");
 		ScreenPrint(0, 3, StatString);
 
 		break;
@@ -446,6 +458,7 @@ void Render()
 	{
 		sprintf(string, "주인공 이동좌표 : %d, %d       Life : %d    Star : %d (총 %d )       게임 종료 : Q 버튼\n", Player.X, Player.Y, Player.Life, Star.Catch, Star.SumCatch); // 멘트 수정하기
 		ScreenPrint(0, 0, string);
+		ScreenPrint(0, 1, MoveLine);
 
 		// 1, 2 스테이지에서 MoveLine
 
