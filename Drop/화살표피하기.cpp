@@ -5,7 +5,7 @@
 #include "Screen.c"
 #pragma warning(disable:4996)
 
-#define DotNum 18 // Dot의 개수
+#define DotNum 17 // Dot의 개수
 #define StageNum 3 // Stage 개수
 #define BOARD_WIDTH 80      // 화면의 너비
 #define BOARD_HEIGHT 25      // 화면의 높이
@@ -22,7 +22,7 @@ enum ControlKeys
 	SPACE = 32
 };
 
-typedef enum _GAMESTATUS { START, INIT, READY, RUNNING, STOP, NEXT, RESULT } GAMESTATUS;
+typedef enum _GAMESTATUS { START, INIT, READY, GO, RUNNING, STOP, NEXT, RESULT } GAMESTATUS;
 
 // 구조체 선언
 
@@ -72,7 +72,7 @@ clock_t Stat_OldTime = clock(); // PrintTime의 OldTime
 
 // 화면에 표시될 모양 
 
-char Player_Shape[] = { "*" };
+char Player_Shape[] = { "＊" };
 char Dot_Shape[4][3] = { { "↓" },{ "↑" },{ "→" },{ "←" } };
 char Star_Shape[] = { "★" };
 
@@ -86,7 +86,7 @@ void KeyControl(int key) // 키 입력 처리
 	case UP:
 		if (Stage == 2)
 		{
-			if (!Player.Y == 0)
+			if (Player.Y != 2)
 				Player.Y--;
 		}
 		break;
@@ -107,24 +107,6 @@ void KeyControl(int key) // 키 입력 처리
 	case RIGHT:
 		if (!(Player.X == (BOARD_WIDTH - 1)))
 			Player.X++;
-		break;
-
-	case SPACE:
-		//게임 시작 / 일시정지 
-		switch (GameStatus)
-		{
-		case START:
-			GameStatus = INIT;
-			break;
-
-		case RUNNING:
-			GameStatus = STOP;
-			break;
-
-		case STOP:
-			GameStatus = RUNNING;
-			break;
-		}
 		break;
 
 	}
@@ -357,7 +339,7 @@ void StatusPrint()
 			"\t\t이동 : 방향키 | 일시정지 : SPACE BAR\n"
 			"\t\t＊ : 플레이어 | ★ : Star (목표)\n\n"
 			"\t\t-----------------------------------\n"
-			"\t\t게임 시작 : SPACE BAR | 게임 종료 : q\n\n\n");
+			"\t\t게임 시작 : SPACE BAR | 게임 종료 : q\n\n\n\n");
 		ScreenPrint(0, 3, StatString);
 
 		break;
@@ -368,11 +350,23 @@ void StatusPrint()
 
 			DotInit(); // Dot 초기화
 			StarInit(); // Star 초기화
-			Player.Life = 3;
 			Star.Catch = 0;
 
-			sprintf(StatString, "INIT 화면");
-			ScreenPrint(10, 10, StatString);
+			// Player 초기화
+			Player.X = 35;
+			Player.Y = 15;
+			Player.Life = 3;
+
+			if (Stage == 0)
+			{
+				sprintf(StatString, "[INIT] 게임 초기화 \n\n");
+				ScreenPrint(25, 10, StatString);
+			}
+			else // Stage != 0
+			{
+				sprintf(StatString, "[INIT] 게임 초기화 \n\n", Stage + 1);
+				ScreenPrint(25, 10, StatString);
+			}
 		}
 		else
 		{
@@ -385,32 +379,40 @@ void StatusPrint()
 	case READY:
 		if (CurTime - Stat_OldTime < PrintTime)
 		{
-			sprintf(StatString, "READY 화면");
-			ScreenPrint(10, 10, StatString);
+			sprintf(StatString, "[READY] %d 스테이지",Stage+1);
+			ScreenPrint(25, 10, StatString);
 		}
 		else
 		{
-			GameStatus = RUNNING;
+			GameStatus = GO;
 			Stat_OldTime = CurTime;
 		}
 
 		break;
 
+	case GO:
+		sprintf(StatString, "SPACE : 게임 시작 ");
+		ScreenPrint(30, 10, StatString);
+
+
 	case RUNNING:
+		Stat_OldTime = CurTime;
 
 		break;
 
 	case STOP:
-		sprintf(StatString, "STOP 화면");
-		ScreenPrint(10, 10, StatString);
+		sprintf(StatString, "[ STOP 화면 ]\n\n"
+							"\t\t\t SPACE : 게임화면으로 돌아감 ");
+		ScreenPrint(30, 10, StatString);
 
 		break;
 
 	case NEXT:
 		if (CurTime - Stat_OldTime < PrintTime)
 		{
-			sprintf(StatString, "NEXT 화면");
-			ScreenPrint(10, 10, StatString);
+			sprintf(StatString,	" %d 스테이지 GAME OVER", Stage + 1);
+			ScreenPrint(25, 10, StatString);
+
 		}
 		else
 		{
@@ -427,8 +429,9 @@ void StatusPrint()
 		break;
 
 	case RESULT:
-		sprintf(StatString, "RESULT 화면");
-		ScreenPrint(10, 10, StatString);
+		sprintf(StatString, "[ 게임 결과 ]\n\n"
+							"\t\t\t 획득한 Star 개수 : %d", Star.SumCatch);
+		ScreenPrint(30, 10, StatString);
 
 		break;
 	}
@@ -501,9 +504,9 @@ void Render()
 
 	StatusPrint();
 
-	if (GameStatus == RUNNING)
+	if (GameStatus == RUNNING || GameStatus == STOP || GameStatus == GO)
 	{
-		sprintf(string, "\tLife : %d        Star : %d (총 %d 점 )          게임 종료 : Q 버튼\n", Player.Life, Star.Catch, Star.SumCatch); // 멘트 수정하기
+		sprintf(string, "\tLife : %d        Star : %d (총 %d 점 )          게임 종료 : Q 버튼\n", Player.Life, Star.Catch, Star.SumCatch);
 		ScreenPrint(0, 0, string);
 		ScreenPrint(0, 1, MoveLine);
 
@@ -577,7 +580,31 @@ void main()
 			if (Key == 'q' || Key=='Q')
 				break;
 
-			KeyControl(Key);
+			if (Key == SPACE)
+			{
+				//게임 시작 / 일시정지 
+				switch (GameStatus)
+				{
+				case START:
+					GameStatus = INIT;
+					break;
+
+				case RUNNING:
+					GameStatus = STOP;
+					break;
+
+				case GO:
+					GameStatus = RUNNING;
+					break;
+
+				case STOP:
+					GameStatus = RUNNING;
+					break;
+				}
+			}
+
+			if (GameStatus != GO && GameStatus != STOP)
+				KeyControl(Key);
 
 		}
 

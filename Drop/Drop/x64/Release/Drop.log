@@ -1,16 +1,14 @@
-﻿  Screen.c
-..\Screen.c(43): warning C4267: '함수': 'size_t'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  화살표피하기.cpp
+﻿  화살표피하기.cpp
 c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\Screen.c(41): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
 c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\Screen.c(43): warning C4267: '인수': 'size_t'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-..\화살표피하기.cpp(274): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-..\화살표피하기.cpp(288): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-..\화살표피하기.cpp(302): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-..\화살표피하기.cpp(316): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-..\화살표피하기.cpp(332): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(256): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(270): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(284): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(298): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(314): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+..\화살표피하기.cpp(367): warning C4474: 'sprintf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+  ..\화살표피하기.cpp(367): note: 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
   코드를 생성하고 있습니다.
-  21 of 23 functions (91.3%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  All 23 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   코드를 생성했습니다.
   Drop.vcxproj -> C:\Users\samsungpc\Documents\opopop\C-C-Player-s-Journey---project\Drop\x64\Release\Drop.exe

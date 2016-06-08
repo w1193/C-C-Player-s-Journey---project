@@ -1,1 +1,10 @@
-﻿
+﻿  화살표피하기.cpp
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\screen.c(41): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(256): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(270): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(284): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(298): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(314): warning C4244: '=': 'double'에서 'clock_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(367): warning C4474: 'sprintf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+  c:\users\samsungpc\documents\opopop\c-c-player-s-journey---project\drop\화살표피하기.cpp(367): note: 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+  Drop.vcxproj -> C:\Users\samsungpc\Documents\opopop\C-C-Player-s-Journey---project\Drop\Debug\Drop.exe
