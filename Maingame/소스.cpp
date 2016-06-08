@@ -8,7 +8,7 @@ int Power, Intel, Luck, Dex, Wealth, Beauty = 0;
 int Stamina = 100;
 int Money = 50000;//초기 시작 스탯과 돈
 int Stat_min = 0;
-int Stat_max = 100;//스탯의 최대치와 최소치
+int Stat_max = 1000;//스탯의 최대치와 최소치
 
 int choise;//선택
 int day = 0;//날짜
@@ -26,13 +26,10 @@ void stat()
 
 int Stat_Limit(int& stat) {
 	if (stat <= Stat_min) {
-		stat = 0;
+		stat = Stat_min;
 	}
 	if (stat >= Stat_max) {
-		stat = 100;
-	}
-	else {
-		stat = stat;
+		stat = Stat_max;
 	}
 	return stat;
 }//스탯의 최대치와 최소치를 제한한다.
@@ -40,10 +37,6 @@ int Stat_Limit(int& stat) {
 int Money_Limit() {
 	if (Money <= 0) {
 		Money = 0;
-	}
-	else
-	{
-		Money = Money;
 	}
 	return Money;
 }//돈의 최소값을 제한.
@@ -81,14 +74,14 @@ void sleep()
 		scanf_s("%d", &choise);
 		switch (choise)
 		{
-		case(1) :
+		case(1):
 			day++;
 			Stamina += Stat_max / 2;
-			Intel -= 15;
+			Intel -= 45;
 			Stat_Limit(Stamina);
 			Stat_Limit(Intel);//수업을 듣지않고 잠을 잤을 때 일어나는 상황
 			return;
-		case(2) :
+		case(2):
 			back = 1;
 			return;
 		}
@@ -103,12 +96,16 @@ home: {
 	if (day == 60 || day == 60 + 72 || day == 60 + 72 + 72 || day == 60 + 72 + 72 + 72)
 	{
 		printf("오늘은 시험을 보는날입니다 공대4호관 교실로 가십시요\n\n");
+		if (Intel <= 500)
+		{
+			printf("어디선가 자신감이 솓구친다\n\n");
+		}
 	}
 	printf_s("1. 잠자기 \n\n2. 밥먹기\n\n3. 밖으로 나가기\n\n9. 스텟보기\n\n");
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		system("cls");
 		sleep();
 		if (back == 1)
@@ -118,24 +115,24 @@ home: {
 		}
 		system("cls");
 		return;
-	case(2) :
+	case(2):
 		system("cls");
-		Stamina += 5;
+		Stamina += 150;
 		Stat_Limit(Stamina);
-		printf("Stamina + 5 증가 ! !\n\n");
+		printf("Stamina + 150 증가 ! !\n\n");
 		system("PAUSE");//여기에 밥먹기 했을때 일어나는 상황
 		goto home;
-	case(3) :
+	case(3):
 		system("PAUSE");
 		goto school;
-	case(9) :
+	case(9):
 		system("cls");
 		stat();//캐릭터 정보보기
 		system("PAUSE");
 		goto home;
 	}
 
-}
+	}
   school: {
 	  system("cls");
 	  printf_s("학교입니다\n\n");
@@ -143,33 +140,33 @@ home: {
 	  scanf_s("%d", &choise);
 	  switch (choise)
 	  {
-	  case(1) :
+	  case(1):
 		  printf_s("\n신관을 간다\n\n");
 		  system("PAUSE");
 		  goto cafe;
-	  case(2) :
+	  case(2):
 		  printf_s("\n교양동을 간다\n\n");
 		  system("PAUSE");
 		  goto classroom;
-	  case(3) :
+	  case(3):
 		  printf_s("\n공대 4호관을 간다\n\n");
 		  system("PAUSE");
 		  goto eng_univ;
-	  case(4) :
+	  case(4):
 		  printf_s("\n도서관을 간다\n\n");
 		  system("PAUSE");
 		  goto lib;
-	  case(5) :
+	  case(5):
 		  printf_s("기숙사를 간다\n\n");
 		  system("PAUSE");
 		  goto home;
-	  case(9) :
+	  case(9):
 		  system("cls");
 		  stat();//캐릭터 정보보기
 		  system("PAUSE");
 		  goto school;
 	  }
-  }
+}
 	  cafe: {
 		  system("cls");
 		  printf_s("신관입니다\n\n");
@@ -178,19 +175,19 @@ home: {
 		  scanf_s("%d", &choise);
 		  switch (choise)
 		  {
-		  case(1) :
+		  case(1):
 			  goto club;
-		  case(2) :
+		  case(2):
 			  goto food;
-		  case(3) :
+		  case(3):
 			  goto school;
-		  case(9) :
+		  case(9):
 			  system("cls");
 			  stat();//캐릭터 정보보기
 			  system("PAUSE");
 			  goto cafe;
 		  }
-	  }
+  }
 		food: {
 			system("cls");
 			printf_s("식당입니다   현재 남은 돈 : %d\n\n", Money);
@@ -198,13 +195,13 @@ home: {
 			scanf_s("%d", &choise);
 			switch (choise)
 			{
-			case(1) :
+			case(1):
 				system("cls");
 				if (Money > 2000)
 				{
 					printf_s("정식 머금\n\n");
 					Money -= 2000;
-					Stamina += 15;
+					Stamina += 300;
 					Money_Limit();
 					Stat_Limit(Stamina);//정식먹으면 나오는 변화
 					system("pause");
@@ -215,13 +212,13 @@ home: {
 					system("pause");
 				}
 				goto food;
-			case(2) :
+			case(2):
 				system("cls");
 				if (Money > 3000)
 				{
 					printf_s("특식머금\n\n");
 					Money -= 3000;
-					Stamina += 30;
+					Stamina += 500;
 					Money_Limit();
 					Stat_Limit(Stamina);//특식 먹으면 나오는 변화
 					system("pause");
@@ -233,15 +230,15 @@ home: {
 
 				}
 				goto food;
-			case(3) :
+			case(3):
 				goto cafe;
-			case(9) :
+			case(9):
 				system("cls");
 				stat();//캐릭터 정보보기
 				system("PAUSE");
 				goto food;
 			}
-		}
+	  }
 		  club: {
 			  system("cls");
 			  printf_s("동아리방입니다\n\n");  getchar();
@@ -252,7 +249,7 @@ home: {
 			  scanf_s("%d", &choise);
 			  switch (choise)
 			  {
-			  case(1) :
+			  case(1):
 				  Money -= 500;
 				  Money_Limit();
 				  system("cls"); getchar();
@@ -261,40 +258,40 @@ home: {
 				  printf("500원을 잃었습니다.\n"); getchar();
 				  system("PAUSE");
 				  goto cafe;
-			  case(2) :
+			  case(2):
 				  system("cls");
 				  printf("싫음 말고...\n\n");
 			  }
 			  system("PAUSE");
 			  goto cafe;
-		  }
+		}
 			classroom: {
 				system("cls");
 				printf_s("교양동 입니다\n\n");
 				printf("무엇을 하시겠습니까?\n\n");
-				printf_s("1. 수업 듣기(체력 30감소, 지능 5 증가\n\n2. 밖으로 나가기\n\n9. 스텟보기\n\n");
+				printf_s("1. 수업 듣기(체력 200감소, 지능 45 증가\n\n2. 밖으로 나가기\n\n9. 스텟보기\n\n");
 				scanf_s("%d", &choise);
 				switch (choise)
 				{
-				case(1) :
+				case(1):
 					system("cls");
 					printf("수업을 듣는 중...\n\n");  system("PAUSE");
 					class_pro++;
-					Stamina -= 30;
-					Intel += 5;
+					Stamina -= 200;
+					Intel += 45;
 					Stat_Limit(Stamina);
 					Stat_Limit(Intel);//이곳에 수업 들으면 일어나는 상황
 					system("cls");
 					printf(".\n.\n수업이 끝났습니다.\n\n");  system("PAUSE");
-				case(2) :
+				case(2):
 					goto school;
-				case(9) :
+				case(9):
 					system("cls");
 					stat();//캐릭터 정보보기
 					system("PAUSE");
 					goto classroom;
 				}
-			}
+		  }
 					   //공대에서 주로 진행
 				   eng_univ: {
 					   system("cls");
@@ -304,13 +301,13 @@ home: {
 					   scanf_s("%d", &choise);
 					   switch (choise)
 					   {
-					   case(1) :
+					   case(1):
 						   goto eng_class;
-					   case(2) :
+					   case(2):
 						   goto eng_room;
-					   case(3) :
+					   case(3):
 						   goto school;
-					   case(9) :
+					   case(9):
 						   system("cls");
 						   stat();//캐릭터 정보보기
 						   system("PAUSE");
@@ -329,7 +326,7 @@ home: {
 					   printf_s("교실 입니다\n\n");
 					   system("PAUSE");
 					   goto eng_univ;
-				   }
+					   }
 						  eng_room: {
 							  system("cls"); getchar();
 							  printf("과방입니다.\n"); getchar();
@@ -338,12 +335,12 @@ home: {
 							  system("PAUSE");
 							  class_pro++;
 							  goto eng_univ;
-						  }
+				   }
 								lib: {
 									system("cls");
 									printf_s("중앙 도서관 입니다\n\n");
-								}
-				   }
+						  }
+			}
 }
 //평일
 void weekend()
@@ -352,31 +349,31 @@ void weekend()
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
-	case(1) :
+	case(1):
 		printf_s("알바함\n");
 		system("pause");
 		system("cls");
 		day++;
 		Money += 6030;
-		Stamina -= 15;
-		Wealth += 1;
+		Stamina -= 150;
+		Wealth += 50;
 		Stat_Limit(Stamina);
 		Stat_Limit(Wealth);//알바 했을 때의 변화
 		return;
-	case(2) :
+	case(2):
 		printf_s("운동함\n");
 		system("pause");
 		system("cls");
 		day++;
-		Stamina -= 5;
-		Power, Dex += 5;
-		Beauty += 1;
+		Stamina -= 300;
+		Power, Dex += 80;
+		Beauty += 50;
 		Stat_Limit(Stamina);
 		Stat_Limit(Power);
 		Stat_Limit(Dex);
 		Stat_Limit(Beauty);//운동했을 때의 변화
 		return;
-	case(3) :
+	case(3):
 		printf("잠\n");
 		system("pause");
 		system("cls");
