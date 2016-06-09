@@ -1,0 +1,14 @@
+﻿빌드 시작: 2016-06-09 오후 6:28:17
+     1>2 노드의 "C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\mainbeta.vcxproj" 프로젝트(Build 대상)입니다.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt "게임.cpp"
+         게임.cpp
+     1>c:\users\unguys33\documents\visual studio 2015\projects\mainbeta\게임.cpp(476): warning C4804: '<=': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\Debug\mainbeta.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\Debug\mainbeta.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\Debug\mainbeta.lib" /MACHINE:X86 "Debug\게임.obj"
+         mainbeta.vcxproj -> C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\Debug\mainbeta.exe
+     1>"C:\Users\UNGUYS33\Documents\Visual Studio 2015\Projects\mainbeta\mainbeta.vcxproj" 프로젝트를 빌드했습니다(Build 대상).
+
+빌드했습니다.
+
+경과 시간: 00:00:00.62
