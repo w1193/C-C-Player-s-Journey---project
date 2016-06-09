@@ -2,78 +2,158 @@
 #include <stdlib.h> 
 #include <time.h>
 
-//int Power, Stamina, Intel, Luck, Dex, Wealth, Beauty; //Ä³¸¯ÅÍ ½ºÅÈ
-int Power, Intel, Luck, Dex, Wealth, Beauty = 0;
-int Stamina = 100;
-int Money = 50000;//ÃÊ±â ½ÃÀÛ ½ºÅÈ°ú µ·
-int Stat_min = 0;
-int Stat_max = 100;//½ºÅÈÀÇ ÃÖ´ëÄ¡¿Í ÃÖ¼ÒÄ¡
 
-int choise;//¼±ÅÃ
-int day = 0;//³¯Â¥
-int class_pro;//¼ö¾÷ ¹Ş¾Ò´ÂÁö È®ÀÎ
+//int Power, Stamina, Intel, Luck, Beauty; //ìºë¦­í„° ìŠ¤íƒ¯
+int Power, Intel, Luck, Beauty = 0;
+int Stamina = 100;
+int Money = 50000;//ì´ˆê¸° ì‹œì‘ ìŠ¤íƒ¯ê³¼ ëˆ
+int Stat_min = 0;
+int Stat_max = 1000;//ìŠ¤íƒ¯ì˜ ìµœëŒ€ì¹˜ì™€ ìµœì†Œ
+char name[100][100] = { "ì² ìˆ˜(ì¢…ì¡± : Terran)","ì˜í¬(ì¢…ì¡± : Protos)","ë°”ë‘‘ì´(ì¢…ì¡± : Zerg)" };
+int ncode;
+
+int choise;//ì„ íƒ
+int day = 140;//ë‚ ì§œ
+int class_pro;//ìˆ˜ì—… ë°›ì•˜ëŠ”ì§€ í™•ì¸
+int test;//ì‹œí—˜ì„ ë´¤ëŠ”ì§€ í™•ì¸
 int back;
+
+void setname() {
+
+	printf("í”Œë ˆì´ í•˜ê³  ì‹¶ì€ ìºë¦­í„°ë¥¼ ì„ íƒí•˜ì„¸ìš”.\n");
+	printf("1. ì² ìˆ˜(ì¢…ì¡± : Terran)\n\n"); 
+	printf("2. ì˜í¬(ì¢…ì¡± : Protos)\n\n");
+	printf("3. ë°”ë‘‘ì´(ì¢…ì¡± : Zerg)\n\n"); 
+	scanf_s("%d",&choise);
+	switch(choise) {
+	case(1):
+		printf("Player 'ì² ìˆ˜' ë¥¼ ì„ íƒí•˜ì…¨ìŠµë‹ˆë‹¤.\n\n"); getchar();
+		ncode = 0;
+		printf("ì¢…ì¡± íŒ¨ì‹œë¸Œ\n"); getchar();
+		Power += 200;
+		printf("í˜ì´ 200ì¦ê°€í•©ë‹ˆë‹¤.\n"); getchar();
+		return;
+	case(2):
+		printf("Player 'ì˜í¬' ë¥¼ ì„ íƒí•˜ì…¨ìŠµë‹ˆë‹¤.\n"); getchar();
+		ncode =1;
+		printf("ì¢…ì¡± íŒ¨ì‹œë¸Œ\n"); getchar();
+		Intel += 200;
+		printf("ì§€ë ¥ì´ 200ì¦ê°€í•©ë‹ˆë‹¤.\n"); getchar();
+		return;
+	case(3):
+		printf("Player 'ë°”ë‘‘ì´' ë¥¼ ì„ íƒí•˜ì…¨ìŠµë‹ˆë‹¤.\n"); getchar();
+		ncode=2;
+		printf("ì¢…ì¡± íŒ¨ì‹œë¸Œ\n"); getchar();
+		Beauty += 200;
+		printf("ë§¤ë ¥ì´ 200ì¦ê°€í•©ë‹ˆë‹¤.\n"); getchar();
+		return;
+	}
+	system("cls");
+}
 
 void stat()
 {
-	printf("1. ÀÌ¸§ : \n\n");
-	printf("2. ½ºÅÈ \n\n");
-	printf("Èû:%d, Ã¼·Â:%d, Áö·Â:%d, ¿î: %d\n\n¹ÎÃ¸:%d, wealth: %d, ¿Ü¸ğ:%d, µ·:%d\n\n", Power, Stamina, Intel, Luck, Dex, Wealth, Beauty, Money);
+	printf("1. ì´ë¦„ : %s\n\n", name[ncode]);
+	printf("2. ìŠ¤íƒ¯ \n\n");
+	printf("í˜:%d, ì²´ë ¥:%d, ì§€ë ¥:%d, ìš´: %d\nì™¸ëª¨:%d, ëˆ:%d\n\n", Power, Stamina, Intel, Luck, Beauty, Money);
 	return;
 }
 
 int Stat_Limit(int& stat) {
 	if (stat <= Stat_min) {
-		stat = 0;
+		stat = Stat_min;
 	}
 	if (stat >= Stat_max) {
-		stat = 100;
-	}
-	else {
-		stat = stat;
+		stat = Stat_max;
 	}
 	return stat;
-}//½ºÅÈÀÇ ÃÖ´ëÄ¡¿Í ÃÖ¼ÒÄ¡¸¦ Á¦ÇÑÇÑ´Ù.
+}//ìŠ¤íƒ¯ì˜ ìµœëŒ€ì¹˜ì™€ ìµœì†Œì¹˜ë¥¼ ì œí•œí•œë‹¤.
 
 int Money_Limit() {
 	if (Money <= 0) {
 		Money = 0;
 	}
-	else
-	{
-		Money = Money;
-	}
 	return Money;
-}//µ·ÀÇ ÃÖ¼Ò°ªÀ» Á¦ÇÑ.
+}//ëˆì˜ ìµœì†Œê°’ì„ ì œí•œ.
+
+void talk() {
+	srand((unsigned)time(NULL));
+	switch (rand() % 2)
+	{
+	case(1) :
+		printf_s("ì´ê³³ì—ëŠ” ìŠ¬í”ˆ ì „ì„¤ì´ ìˆì§€...\n");  getchar();
+		printf_s("ì•Œê³ ì‹¶ë‚˜?\n");  getchar();
+		printf_s("ê·¸ëŸ¼ 500ì›.\n");  getchar();
+		printf_s("ì–´ë–»ê²Œ í•˜ì§€??\n\n1. 500ì›ì„ ì¤€ë‹¤\n\n2. ì£¼ì§€ì•ŠëŠ”ë‹¤\n");
+		scanf_s("%d", &choise);
+		switch (choise)
+		{
+		case(1) :
+			Money -= 500;
+			Money_Limit();
+			system("cls"); getchar();
+			printf("..........\n"); getchar();
+			printf("í—¹? ì†ì•˜ì§€? ê·¸ê±¸ ë¯¿?rã…‹ã…‹ã…‹\n"); getchar();
+			printf("500ì›ì„ ìƒì—ˆìŠµë‹ˆë‹¤.\n"); getchar();
+			system("PAUSE");
+		case(2) :
+			system("cls");
+			printf("ì‹«ìŒ ë§ê³ ...\n\n");
+			return;
+		}
+	case(2) :
+		printf_s("ë­”ê°€ ì—¬ëŸ¬ê°€ì§€ê°€ ìˆë‹¤.\n");  getchar();
+		printf_s("ë¬´ì—‡ì„ í•˜ì§€??\n");  getchar();
+		printf_s("ì´ê³³ì—ëŠ” ìŠ¬í”ˆ ì „ì„¤ì´ ìˆì§€...\n");  getchar();
+	case(3) :
+		printf_s("ì•„ë¬´ë„ ì—†ë‹¤.\n"); getchar();
+		printf_s("...\n"); getchar();
+		printf_s("..\n"); getchar();
+		printf_s("ã… ã… \n"); getchar();
+		system("pause");
+	}
+	return;
+}
 
 void sleep()
 {
 	system("cls");
+	if (day == 60 || day == 60 + 72 || day == 60 + 72 + 72 || day == 60 + 72 + 72 + 72)
+	{
+		if (test != 1)
+		{
+			printf("ì•„ì§ ì‹œí—˜ì„ ë³´ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤");
+			system("pause");
+			back = 1;
+			return;
+		}
+	}
 	if (class_pro == 1)
 	{
 
-		printf("ÀÚ´ÂÁß~\n");
+		printf("ìëŠ”ì¤‘~\n");
 		system("PAUSE");
+		test = 0;
 		class_pro--;
 		day++;
 		Stamina += Stat_max / 2;
-		Stat_Limit(Stamina);//¿©±â¿¡ ÀáÀÚ±â ÇßÀ»¶§ ÀÏ¾î³ª´Â »óÈ²
+		Stat_Limit(Stamina);//ì—¬ê¸°ì— ì ìê¸° í–ˆì„ë•Œ ì¼ì–´ë‚˜ëŠ” ìƒí™©
 		return;
 	}
 	else
 	{
 
 
-		printf_s("¾ÆÁ÷ ¼ö¾÷À» µèÁö ¾Ê¾Ò½À´Ï´Ù\n\n±×·¡µµ ÀáÀ» ÀÚ°Ú½À´Ï±î?\n\n1. ÀÜ´Ù\n\n2. ¾ÈÀÜ´Ù\n");
+		printf_s("ì•„ì§ ìˆ˜ì—…ì„ ë“£ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤\n\nê·¸ë˜ë„ ì ì„ ìê² ìŠµë‹ˆê¹Œ?\n\n1. ì”ë‹¤\n\n2. ì•ˆì”ë‹¤\n");
 		scanf_s("%d", &choise);
 		switch (choise)
 		{
 		case(1) :
 			day++;
 			Stamina += Stat_max / 2;
-			Intel -= 15;
+			Intel -= 45;
 			Stat_Limit(Stamina);
-			Stat_Limit(Intel);//¼ö¾÷À» µèÁö¾Ê°í ÀáÀ» ÀäÀ» ¶§ ÀÏ¾î³ª´Â »óÈ²
+			Stat_Limit(Intel);//ìˆ˜ì—…ì„ ë“£ì§€ì•Šê³  ì ì„ ì¤ì„ ë•Œ ì¼ì–´ë‚˜ëŠ” ìƒí™©
 			return;
 		case(2) :
 			back = 1;
@@ -81,13 +161,21 @@ void sleep()
 		}
 	}
 }
-//ÀáÀÚ´Â »óÈ²
+//ì ìëŠ” ìƒí™©
 void week()
 {
 home: {
 	system("cls");
-	printf_s("±â¼÷»ç ÀÔ´Ï´Ù               ³¯Â¥: %d ÀÏ\n\n", day);
-	printf_s("1. ÀáÀÚ±â \n\n2. ¹ä¸Ô±â\n\n3. Ä³¸¯ÅÍÁ¤º¸\n\n4. ¹ÛÀ¸·Î ³ª°¡±â\n\n");
+	printf_s("ê¸°ìˆ™ì‚¬ ì…ë‹ˆë‹¤               ë‚ ì§œ: %d ì¼\n\n", day);
+	if (day == 60 || day == 60 + 72 || day == 60 + 72 + 72 || day == 60 + 72 + 72 + 72)
+	{
+		printf("ì˜¤ëŠ˜ì€ ì‹œí—˜ì„ ë³´ëŠ”ë‚ ì…ë‹ˆë‹¤ ê³µëŒ€4í˜¸ê´€ êµì‹¤ë¡œ ê°€ì‹­ì‹œìš”\n\n");
+		if (Intel <= 500)
+		{
+			printf("ì–´ë””ì„ ê°€ ìì‹ ê°ì´ ì†“êµ¬ì¹œë‹¤\n\n");
+		}
+	}
+	printf_s("1. ì ìê¸° \n\n2. ë°¥ë¨¹ê¸°\n\n3. ë°–ìœ¼ë¡œ ë‚˜ê°€ê¸°\n\n4. ìŠ¤í…Ÿë³´ê¸°\n\n");
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
@@ -103,57 +191,61 @@ home: {
 		return;
 	case(2) :
 		system("cls");
-		Stamina += 5;
+		Stamina += 150;
 		Stat_Limit(Stamina);
-		printf("Stamina + 5 Áõ°¡ ! !\n\n");
-		system("PAUSE");//¿©±â¿¡ ¹ä¸Ô±â ÇßÀ»¶§ ÀÏ¾î³ª´Â »óÈ²
+		printf("Stamina + 150 ì¦ê°€ ! !\n\n");
+		system("PAUSE");//ì—¬ê¸°ì— ë°¥ë¨¹ê¸° í–ˆì„ë•Œ ì¼ì–´ë‚˜ëŠ” ìƒí™©
 		goto home;
 	case(3) :
-		system("cls");
-		stat();//Ä³¸¯ÅÍ Á¤º¸º¸±â
-		system("PAUSE");
-		goto home;
-	case(4) :
 		system("PAUSE");
 		goto school;
-
+	case(4) :
+		system("cls");
+		stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+		system("PAUSE");
+		goto home;
 	}
 
 }
   school: {
 	  system("cls");
-	  printf_s("ÇĞ±³ÀÔ´Ï´Ù\n\n");
-	  printf_s("1. ½Å°ü °¡±â\n\n2. ±³¾çµ¿ °¡±â\n\n3. °ø´ë4È£°ü °¡±â\n\n4. µµ¼­°ü °¡±â\n\n5. ±â¼÷»ç °¡±â\n\n");
+	  printf_s("í•™êµì…ë‹ˆë‹¤\n\n");
+	  printf_s("1. ì‹ ê´€ ê°€ê¸°\n\n2. êµì–‘ë™ ê°€ê¸°\n\n3. ê³µëŒ€4í˜¸ê´€ ê°€ê¸°\n\n4. ë„ì„œê´€ ê°€ê¸°\n\n5. ê¸°ìˆ™ì‚¬ ê°€ê¸°\n\n6. ìŠ¤í…Ÿë³´ê¸°\n\n");
 	  scanf_s("%d", &choise);
 	  switch (choise)
 	  {
 	  case(1) :
-		  printf_s("\n½Å°üÀ» °£´Ù\n\n");
+		  printf_s("\nì‹ ê´€ì„ ê°„ë‹¤\n\n");
 		  system("PAUSE");
 		  goto cafe;
 	  case(2) :
-		  printf_s("\n±³¾çµ¿À» °£´Ù\n\n");
+		  printf_s("\nêµì–‘ë™ì„ ê°„ë‹¤\n\n");
 		  system("PAUSE");
 		  goto classroom;
 	  case(3) :
-		  printf_s("\n°ø´ë 4È£°üÀ» °£´Ù\n\n");
+		  printf_s("\nê³µëŒ€ 4í˜¸ê´€ì„ ê°„ë‹¤\n\n");
 		  system("PAUSE");
 		  goto eng_univ;
 	  case(4) :
-		  printf_s("\nµµ¼­°üÀ» °£´Ù\n\n");
+		  printf_s("\në„ì„œê´€ì„ ê°„ë‹¤\n\n");
 		  system("PAUSE");
 		  goto lib;
 	  case(5) :
-		  printf_s("±â¼÷»ç¸¦ °£´Ù\n\n");
+		  printf_s("ê¸°ìˆ™ì‚¬ë¥¼ ê°„ë‹¤\n\n");
 		  system("PAUSE");
 		  goto home;
+	  case(6) :
+		  system("cls");
+		  stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+		  system("PAUSE");
+		  goto school;
 	  }
   }
 	  cafe: {
 		  system("cls");
-		  printf_s("½Å°üÀÔ´Ï´Ù\n\n");
-		  printf("¹«¾ùÀ» ÇÏ½Ã°Ú½À´Ï±î?\n\n");
-		  printf_s("1. µ¿¾Æ¸®¹æ °¡±â\n\n2. ½Ä´ç °¡±â\n\n3. ¹ÛÀ¸·Î ³ª°¡±â\n\n");
+		  printf_s("ì‹ ê´€ì…ë‹ˆë‹¤\n\n");
+		  printf("ë¬´ì—‡ì„ í•˜ì‹œê² ìŠµë‹ˆê¹Œ?\n\n");
+		  printf_s("1. ë™ì•„ë¦¬ë°© ê°€ê¸°\n\n2. ì‹ë‹¹ ê°€ê¸°\n\n3. ë°–ìœ¼ë¡œ ë‚˜ê°€ê¸°\n\n4. ìŠ¤í…Ÿë³´ê¸°\n\n");
 		  scanf_s("%d", &choise);
 		  switch (choise)
 		  {
@@ -163,12 +255,17 @@ home: {
 			  goto food;
 		  case(3) :
 			  goto school;
+		  case(4) :
+			  system("cls");
+			  stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+			  system("PAUSE");
+			  goto cafe;
 		  }
 	  }
 		food: {
 			system("cls");
-			printf_s("½Ä´çÀÔ´Ï´Ù   ÇöÀç ³²Àº µ· : %d\n\n", Money);
-			printf_s("ÀÌ°÷Àº ½Ä´çÀÔ´Ï´Ù\n\n1. Á¤½Ä(2000¿ø)\n\n2. Æ¯½Ä(3000¿ø)\n\n3. ½Å°üÀ¸·Î µ¹¾Æ°¡±â\n\n");
+			printf_s("ì‹ë‹¹ì…ë‹ˆë‹¤   í˜„ì¬ ë‚¨ì€ ëˆ : %d\n\n", Money);
+			printf_s("ì´ê³³ì€ ì‹ë‹¹ì…ë‹ˆë‹¤\n\n1. ì •ì‹(2000ì›)\n\n2. íŠ¹ì‹(3000ì›)\n\n3. ì‹ ê´€ìœ¼ë¡œ ëŒì•„ê°€ê¸°\n\n4. ìŠ¤í…Ÿë³´ê¸°\n\n");
 			scanf_s("%d", &choise);
 			switch (choise)
 			{
@@ -176,16 +273,16 @@ home: {
 				system("cls");
 				if (Money > 2000)
 				{
-					printf_s("Á¤½Ä ¸Ó±İ\n\n");
+					printf_s("ì •ì‹ ë¨¸ê¸ˆ\n\n");
 					Money -= 2000;
-					Stamina += 10;
+					Stamina += 300;
 					Money_Limit();
-					Stat_Limit(Stamina);//Á¤½Ä¸ÔÀ¸¸é ³ª¿À´Â º¯È­
+					Stat_Limit(Stamina);//ì •ì‹ë¨¹ìœ¼ë©´ ë‚˜ì˜¤ëŠ” ë³€í™”
 					system("pause");
 				}
 				else
 				{
-					printf("µ·ÀÌ ºÎÁ·ÇÕ´Ï´Ù.\n\n");
+					printf("ëˆì´ ë¶€ì¡±í•©ë‹ˆë‹¤.\n\n");
 					system("pause");
 				}
 				goto food;
@@ -193,80 +290,69 @@ home: {
 				system("cls");
 				if (Money > 3000)
 				{
-					printf_s("Æ¯½Ä¸Ó±İ\n\n");
+					printf_s("íŠ¹ì‹ë¨¸ê¸ˆ\n\n");
 					Money -= 3000;
-					Stamina += 15;
+					Stamina += 500;
 					Money_Limit();
-					Stat_Limit(Stamina);//Æ¯½Ä ¸ÔÀ¸¸é ³ª¿À´Â º¯È­
+					Stat_Limit(Stamina);//íŠ¹ì‹ ë¨¹ìœ¼ë©´ ë‚˜ì˜¤ëŠ” ë³€í™”
 					system("pause");
 				}
 				else
 				{
-					printf("µ·ÀÌ ºÎÁ·ÇÕ´Ï´Ù");
+					printf("ëˆì´ ë¶€ì¡±í•©ë‹ˆë‹¤");
 					system("pause");
 
 				}
 				goto food;
 			case(3) :
 				goto cafe;
+			case(4) :
+				system("cls");
+				stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+				system("PAUSE");
+				goto food;
 			}
 		}
 		  club: {
 			  system("cls");
-			  printf_s("µ¿¾Æ¸®¹æÀÔ´Ï´Ù\n\n");  getchar();
-			  printf_s("ÀÌ°÷¿¡´Â ½½ÇÂ Àü¼³ÀÌ ÀÖÁö...\n");  getchar();
-			  printf_s("¾Ë°í½Í³ª?\n");  getchar();
-			  printf_s("±×·³ 500¿ø.\n");  getchar();
-			  printf_s("¾î¶»°Ô ÇÏÁö??\n\n1. 500¿øÀ» ÁØ´Ù\n\n2. ÁÖÁö¾Ê´Â´Ù\n");
-			  scanf_s("%d", &choise);
-			  switch (choise)
-			  {
-			  case(1) :
-				  Money -= 500;
-				  Money_Limit();
-				  system("cls"); getchar();
-				  printf("..........\n"); getchar();
-				  printf("Çó? ¼Ó¾ÒÁö? ±×°É ¹Ï†r¤»¤»¤»\n"); getchar();
-				  printf("500¿øÀ» ÀÒ¾ú½À´Ï´Ù.\n"); getchar();
-				  system("PAUSE");
-				  goto cafe;
-			  case(2) :
-				  system("cls");
-				  printf("½ÈÀ½ ¸»°í...\n\n");
-			  }
+			  printf_s("ë™ì•„ë¦¬ë°©ì…ë‹ˆë‹¤\n\n");  getchar();
+			  talk();
 			  system("PAUSE");
 			  goto cafe;
 		  }
 			classroom: {
 				system("cls");
-				printf_s("±³¾çµ¿ ÀÔ´Ï´Ù\n\n");
-				printf("¹«¾ùÀ» ÇÏ½Ã°Ú½À´Ï±î?\n\n");
-				printf_s("1. ¼ö¾÷ µè±â\n\n2. ¹ÛÀ¸·Î ³ª°¡±â\n\n");
+				printf_s("êµì–‘ë™ ì…ë‹ˆë‹¤\n\n");
+				printf("ë¬´ì—‡ì„ í•˜ì‹œê² ìŠµë‹ˆê¹Œ?\n\n");
+				printf_s("1. ìˆ˜ì—… ë“£ê¸°(ì²´ë ¥ 200ê°ì†Œ, ì§€ëŠ¥ 45 ì¦ê°€\n\n2. ë°–ìœ¼ë¡œ ë‚˜ê°€ê¸°\n\n9. ìŠ¤í…Ÿë³´ê¸°\n\n");
 				scanf_s("%d", &choise);
 				switch (choise)
 				{
 				case(1) :
 					system("cls");
-					printf("¼ö¾÷À» µè´Â Áß...\n\n");  system("PAUSE");
+					printf("ìˆ˜ì—…ì„ ë“£ëŠ” ì¤‘...\n\n");  system("PAUSE");
 					class_pro++;
-					Stamina -= 5;
-					Intel += 5;
+					Stamina -= 200;
+					Intel += 45;
 					Stat_Limit(Stamina);
-					Stat_Limit(Intel);//ÀÌ°÷¿¡ ¼ö¾÷ µéÀ¸¸é ÀÏ¾î³ª´Â »óÈ²
+					Stat_Limit(Intel);//ì´ê³³ì— ìˆ˜ì—… ë“¤ìœ¼ë©´ ì¼ì–´ë‚˜ëŠ” ìƒí™©
 					system("cls");
-					printf(".\n.\n¼ö¾÷ÀÌ ³¡³µ½À´Ï´Ù.\n\n");  system("PAUSE");
+					printf(".\n.\nìˆ˜ì—…ì´ ëë‚¬ìŠµë‹ˆë‹¤.\n\n");  system("PAUSE");
 				case(2) :
 					goto school;
+				case(9) :
+					system("cls");
+					stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+					system("PAUSE");
+					goto classroom;
 				}
 			}
-					   //°ø´ë¿¡¼­ ÁÖ·Î ÁøÇà
+					   //ê³µëŒ€ì—ì„œ ì£¼ë¡œ ì§„í–‰
 				   eng_univ: {
 					   system("cls");
-					   printf_s("°ø´ë4È£°ü ÀÔ´Ï´Ù\n\n");
-					   printf("¾îµğ·Î °¡½Ã°Ú½À´Ï±î?\n\n");
-					   printf("1. ±³½Ç\n\n");
-					   printf("2. °ú¹æ\n\n");
-					   printf("3. µ¹¾Æ°£´Ù.\n\n");
+					   printf_s("ê³µëŒ€4í˜¸ê´€ ì…ë‹ˆë‹¤\n\n");
+					   printf("ì–´ë””ë¡œ ê°€ì‹œê² ìŠµë‹ˆê¹Œ?\n\n");
+					   printf("1. êµì‹¤\n\n2. ê³¼ë°©\n\n3. ëŒì•„ê°„ë‹¤.\n\n9. ìŠ¤íƒ¯ë³´ê¸°\n\n");
 					   scanf_s("%d", &choise);
 					   switch (choise)
 					   {
@@ -274,62 +360,75 @@ home: {
 						   goto eng_class;
 					   case(2) :
 						   goto eng_room;
+					   case(3) :
+						   goto school;
+					   case(9) :
+						   system("cls");
+						   stat();//ìºë¦­í„° ì •ë³´ë³´ê¸°
+						   system("PAUSE");
+						   goto eng_univ;
 					   }
-					   goto school;
+				   eng_class: {
+					   system("cls");
+					   if (day == 60 || day == 60 + 72 || day == 60 + 72 + 72 || day == 60 + 72 + 72 + 72)
+					   {
+						   printf("ì‹œí—˜ì„ ë´…ë‹ˆë‹¤\n\n");
+						   //ì‹œí—˜ë³´ëŠ”ë¶€ë¶„ ê²Œì„ ì‚½ì…
+						   test++;
+						   class_pro++;
+						   system("pause");
+					   }
+					   printf_s("êµì‹¤ ì…ë‹ˆë‹¤\n\n");
+					   system("PAUSE");
+					   goto eng_univ;
 				   }
-						 eng_class: {
-							 system("cls");
-							 printf_s("±³½Ç ÀÔ´Ï´Ù\n\n");
-							 system("PAUSE");
-							 goto eng_univ;
-						 }
-								eng_room: {
-									system("cls"); getchar();
-									printf("°ú¹æÀÔ´Ï´Ù.\n"); getchar();
-									printf("¾ß»ıÀÇ ¿ÀÇÂ¼Ò½º°¡ ³ªÅ¸³µ´Ù ! !\n"); getchar();
-									printf("À¸¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ¾Æ\n\n");
-									system("PAUSE");
-									class_pro++;
-									goto eng_univ;
+						  eng_room: {
+							  system("cls"); getchar();
+							  printf("ê³¼ë°©ì…ë‹ˆë‹¤.\n"); getchar();
+							  printf("ì•¼ìƒì˜ ì˜¤í”ˆì†ŒìŠ¤ê°€ ë‚˜íƒ€ë‚¬ë‹¤ ! !\n"); getchar();
+							  printf("ìœ¼ì•„ì•„ì•„ì•„ì•„ì•„ì•„ì•„ì•„ì•„ì•„ì•„\n\n");
+							  system("PAUSE");
+							  class_pro++;
+							  goto eng_univ;
+						  }
+								lib: {
+									system("cls");
+									printf_s("ì¤‘ì•™ ë„ì„œê´€ ì…ë‹ˆë‹¤\n\n");
 								}
-									  lib: {
-										  system("cls");
-										  printf_s("Áß¾Ó µµ¼­°ü ÀÔ´Ï´Ù\n\n");
-									  }
+				   }
 }
-//ÆòÀÏ
+//í‰ì¼
 void weekend()
 {
-	printf_s("ÁÖ¸»ÀÔ´Ï´Ù\n¹«¾ùÀ» ÇÏ½Ã°Ù½À´Ï±î?\n\n1. ¾Ë¹Ù\n\n2. ¿îµ¿\n\n3. ÀáÀÚ±â\n\n");
+	printf_s("ì£¼ë§ì…ë‹ˆë‹¤\në¬´ì—‡ì„ í•˜ì‹œê²ŸìŠµë‹ˆê¹Œ?\n\n1. ì•Œë°”\n\n2. ìš´ë™\n\n3. ì ìê¸°\n\n");
 	scanf_s("%d", &choise);
 	switch (choise)
 	{
 	case(1) :
-		printf_s("¾Ë¹ÙÇÔ\n");
+		printf_s("ì•Œë°”í•¨\n");
 		system("pause");
 		system("cls");
 		day++;
-		Money += 6030;
-		Stamina -= 15;
-		Wealth += 1;
-		Stat_Limit(Stamina);
-		Stat_Limit(Wealth);//¾Ë¹Ù ÇßÀ» ¶§ÀÇ º¯È­
+		//ê²Œì„ ì‚½ì…
+		Money += //ìŠ¤ì½”ì–´;
+		Stamina -= 150;
+		Stat_Limit(Stamina);//ì•Œë°” í–ˆì„ ë•Œì˜ ë³€í™”
 		return;
 	case(2) :
-		printf_s("¿îµ¿ÇÔ\n");
+		printf_s("ìš´ë™í•¨\n");
 		system("pause");
 		system("cls");
 		day++;
-		Stamina -= 5;
-		Power, Dex += 5;
-		Beauty += 1;
+		//ê²Œì„ ì‚½ì…
+		Stamina -= 300;
+		Power+= 80;
+		Beauty += 50;
 		Stat_Limit(Stamina);
 		Stat_Limit(Power);
-		Stat_Limit(Dex);
-		Stat_Limit(Beauty);//¿îµ¿ÇßÀ» ¶§ÀÇ º¯È­
+		Stat_Limit(Beauty);//ìš´ë™í–ˆì„ ë•Œì˜ ë³€í™”
 		return;
 	case(3) :
-		printf("Àá\n");
+		printf("ì \n");
 		system("pause");
 		system("cls");
 		day++;
@@ -338,20 +437,93 @@ void weekend()
 		return;
 	}
 }
-//ÁÖ¸»
+//ì£¼ë§
 void vacation()
 {
-	printf("¹æÇĞÀÌ¿¡¿°\n");
+	printf("ë°©í•™ì´ì—ì—¼\n");
 	day++;
 	system("pause");
 }
-//¹æÇĞ
+//ë°©í•™
 void endings() {
-
-}//¿£µù »ğÀÔ
+	int sum = Power + Intel + Beauty + Luck;
+	if(sum <= 1200){
+		printf("í•™êµë¥¼ ì¡¸ì—…í•˜ì˜€ë‹¤\n"); getchar();
+		printf("ì¡¸ì—…ì¥ì„ ë°›ìœ¼ëŸ¬ í•™êµì— ê°€ì.\n"); getchar();
+		printf("ì´ëŸ°....!!\n"); getchar();
+		printf("..."); getchar();
+		printf("...\n"); getchar();
+		printf("ì˜†ì—ì„œ ë‹¤ê°€ì˜¤ëŠ” ì°¨ë¥¼ ë¯¸ì²˜ ë³´ì§€ ëª»í•˜ê³  ê·¸ë§Œ....\n\n"); getchar();
+		printf("<______________>\n");
+		printf("<ëŒì—°ì‚¬!!!!!!!!>\n"); 
+		printf("<-------------->\n"); getchar();
+		printf("...ê³ ì¸ì˜ ëª…ë³µì„ ë°”ëë‹ˆë‹¤.\n"); getchar();
+	}
+	else
+	{
+		if (sum >= 3200)
+		{
+			printf("í•™êµë¥¼ ì¡¸ì—…í•˜ì˜€ë‹¤\n\n"); getchar();
+			printf("ëŒ€ê¸°ì—…ì— ì·¨ì§í•˜ê¸° ìœ„í•œ ê²½ë ¥ì„ ì–»ê¸° ìœ„í•˜ì—¬ ì¤‘ì†Œê¸°ì—…ì— ì·¨ì§í•˜ì˜€ë‹¤.\n\n"); getchar();
+			printf("ëŒ€ê¸°ì—…ì— ì·¨ì§í–ˆì§€ë§Œ ê³§ ë°±ìˆ˜ê°€ ë˜ì—ˆë‹¤.\n\n"); getchar();
+			printf("í‡´ì§ê¸ˆìœ¼ë¡œ ì¹˜í‚¨ì§‘ì„ ì—´ì—ˆë‹¤.\n\n"); getchar();
+			printf("ê·¸ëŸ¬ë‚˜ ë¨¼ì € ì¹˜í‚¨ì§‘ì„ ì—° ë¬¸ê³¼ë“¤ì—ê²Œ ë°€ë ¤ ì¹˜í‚¨ì§‘ì€ ë§í–ˆë‹¤.\n\n"); getchar();
+			printf("ë‚´ ì¸ìƒì€ ë§í–ˆì–´....\n\n\n"); getchar();
+			printf("------THE (Happy)END-------\n\n"); getchar();
+		}
+		else
+		{
+			if (2000 <= sum <= 3200) {
+				printf("ì¡¸ì—…ì´ ì½”ì•ì´ë‹¤.\n"); getchar();
+				printf("ê·¸ì „ì— ë°€ë¦° ê³¼ì œë¥¼ í•´ì•¼ì§€\n"); getchar();
+				printf("."); getchar();
+				printf("."); getchar();
+				printf("..ì—Œ!!\n"); getchar();
+				printf("<_________________________>\n");
+				printf("<ê³¼ë„í•œ ê³¼ì œë¡œ ì¸í•œ ëŒì—°ì‚¬>\n"); 
+				printf("<------------------------->\n"); getchar();
+				printf("...ê³ ì¸ì˜ ëª…ë³µì„ ë°”ëë‹ˆë‹¤.\n"); getchar();
+			}
+			else {
+				switch (rand() %3)
+				{
+				case(0) :
+					printf("í–‰ë³µí•œ ëŒ€í•™ìƒí™œì„ ì¦ê¸°ëŠ” ì¤‘");
+					printf("...\n\n"); getchar();
+					printf("system:\n"); getchar();
+					printf("<---------------->\n"); 
+					printf("<ìš´ì„ì´ ë–¨ì–´ì§„ë‹¤!>\n"); 
+					printf("<---------------->\n"); getchar();
+					printf("...ì‚¬ë§\n\n"); getchar();
+					return;
+				case(1) :
+					printf("í–‰ë³µí•œ ëŒ€í•™ìƒí™œì„ ì¦ê¸°ëŠ” ì¤‘");
+					printf("...\n\n"); getchar();
+					printf("system:\n"); getchar();
+					printf("<---------------->\n");
+					printf("<í•´ì¼ì´ ë°€ë ¤ì˜¨ë‹¤!>\n");
+					printf("<---------------->\n"); getchar();
+					printf("...ì‚¬ë§\n\n"); getchar();
+					return;
+				case(2) :
+					printf("í–‰ë³µí•œ ëŒ€í•™ìƒí™œì„ ì¦ê¸°ëŠ” ì¤‘");
+					printf("...\n\n"); getchar();
+					printf("system:\n"); getchar();
+					printf("<---------------->\n");
+					printf("<ì§€ì§„ì´ ì¼ì–´ë‚¬ë‹¤!>\n");
+					printf("<---------------->\n"); getchar();
+					printf("...ì‚¬ë§\n\n"); getchar();
+					return;
+				}
+			}
+		}
+	} return;
+} 
+//ì—”ë”© ì‚½ì…
 void main()
 {
-	while (day != 288)
+	setname();
+	while (day != 144)
 	{
 		if (day % 72 <= 60)
 		{
