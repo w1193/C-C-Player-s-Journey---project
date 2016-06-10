@@ -13,7 +13,7 @@ char name[100][100] = { "철수(종족 : Terran)","영희(종족 : Protos)","바
 int ncode;
 
 int choise;//선택
-int day = 140;//날짜
+int day = 0;//날짜
 int class_pro;//수업 받았는지 확인
 int test;//시험을 봤는지 확인
 int back;
