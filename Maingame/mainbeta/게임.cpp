@@ -5,7 +5,7 @@
 
 //int Power, Stamina, Intel, Luck, Beauty; //캐릭터 스탯
 int Power, Intel, Luck, Beauty = 0;
-int Stamina = 100;
+int Stamina = 1000;
 int Money = 50000;//초기 시작 스탯과 돈
 int Stat_min = 0;
 int Stat_max = 1000;//스탯의 최대치와 최소
@@ -16,11 +16,13 @@ int choise;//선택
 int day = 0;//날짜
 int class_pro;//수업 받았는지 확인
 int test;//시험을 봤는지 확인
+int D_meal;//기숙사에서 밥을 먹은 횟수
 int back;
+
 
 void setname() {
 
-	printf("플레이 하고 싶은 캐릭터를 선택하세요.\n");
+	printf("플레이 하고 싶은 캐릭터의 번호를 입력하세요.\n\n");
 	printf("1. 철수(종족 : Terran)\n\n"); 
 	printf("2. 영희(종족 : Protos)\n\n");
 	printf("3. 바둑이(종족 : Zerg)\n\n"); 
@@ -29,21 +31,21 @@ void setname() {
 	case(1):
 		printf("Player '철수' 를 선택하셨습니다.\n\n"); getchar();
 		ncode = 0;
-		printf("종족 패시브\n"); getchar();
+		printf("<<종족 패시브>>\n"); getchar();
 		Power += 200;
 		printf("힘이 200증가합니다.\n"); getchar();
 		return;
 	case(2):
 		printf("Player '영희' 를 선택하셨습니다.\n"); getchar();
 		ncode =1;
-		printf("종족 패시브\n"); getchar();
+		printf("<<종족 패시브>>\n"); getchar();
 		Intel += 200;
 		printf("지력이 200증가합니다.\n"); getchar();
 		return;
 	case(3):
 		printf("Player '바둑이' 를 선택하셨습니다.\n"); getchar();
 		ncode=2;
-		printf("종족 패시브\n"); getchar();
+		printf("<<종족 패시브>>\n"); getchar();
 		Beauty += 200;
 		printf("매력이 200증가합니다.\n"); getchar();
 		return;
@@ -78,9 +80,9 @@ int Money_Limit() {
 
 void talk() {
 	srand((unsigned)time(NULL));
-	switch (rand() % 2)
+	switch (rand() % 3)
 	{
-	case(1) :
+	case(0) :
 		printf_s("이곳에는 슬픈 전설이 있지...\n");  getchar();
 		printf_s("알고싶나?\n");  getchar();
 		printf_s("그럼 500원.\n");  getchar();
@@ -91,29 +93,122 @@ void talk() {
 		case(1) :
 			Money -= 500;
 			Money_Limit();
+			Luck -= 50;
+			Stat_Limit(Luck);
 			system("cls"); getchar();
 			printf("..........\n"); getchar();
-			printf("헹? 속았지? 그걸 믿?rㅋㅋㅋ\n"); getchar();
-			printf("500원을 잃었습니다.\n"); getchar();
-			system("PAUSE");
+			printf("헹? 속았지? 그걸 믿냐ㅋㅋㅋ\n"); getchar();
+			printf("500원을 잃었습니다.운이 50 감소 하였습니다.\n"); getchar();
+			break;
 		case(2) :
 			system("cls");
 			printf("싫음 말고...\n\n");
-			return;
+			break;
 		}
-	case(2) :
+		break;
+	case(1) :
 		printf_s("뭔가 여러가지가 있다.\n");  getchar();
 		printf_s("무엇을 하지??\n");  getchar();
-		printf_s("이곳에는 슬픈 전설이 있지...\n");  getchar();
-	case(3) :
+		printf_s("1. 기타를 친다(체력 - 50, 매력 + 50)\n\n2. 술을 마신다(체력 - 300, 지력- 300, 돈 - 10000, 매력 랜덤 증감 및 추가 보상)\n\n");
+		scanf_s("%d", &choise);
+		switch (choise)
+		{
+		case 1:
+			printf("둥기둥두두두두두둥\n"); getchar();
+			printf("생각보다 뜻대로 되지않네...\n"); 
+			Beauty += 50;
+			Stat_Limit(Beauty);
+			system("pause");
+			break;
+		case 2:
+			Stamina -= 300;
+			Intel -= 300;
+			Money -= 10000;
+			Stat_Limit(Stamina);
+			Stat_Limit(Intel);
+			Money_Limit();
+			system("cls");
+			switch (rand() %2)
+			{
+				int Beauty_tmp;
+			case(0) :
+				Beauty_tmp = rand() % 501;
+				Beauty -= Beauty_tmp;
+				Stat_Limit(Beauty);
+				printf("주량조절에 실패한 당신, 새로 생성된 흑역사로 인하여 매력이 %d만큼 감소하였습니다.\n", Beauty_tmp);
+			case(1):
+				Beauty_tmp = rand() % 501;
+				Beauty += Beauty_tmp;
+				Stat_Limit(Beauty);
+				Luck += 300;
+				Stat_Limit(Luck);
+				printf("끝까지 취하지 않고 제정신을 유지한 당신, 매력이 %d만큼 증가하였습니다.(추가 보상 : 운 300 증가)\n", Beauty_tmp);
+			}
+			break;
+		}
+		break;
+	case(2) :
 		printf_s("아무도 없다.\n"); getchar();
-		printf_s("...\n"); getchar();
+		printf_s("..."); getchar();
 		printf_s("..\n"); getchar();
 		printf_s("ㅠㅠ\n"); getchar();
-		system("pause");
+		break;
 	}
-	return;
-}
+}//동아리방 입장 시 대화
+
+void lib_talk() {
+	printf_s("중앙 도서관 입니다\n\n");
+	srand((unsigned)time(NULL));
+	switch (rand() % 3)
+	{
+	case(0) :
+		printf_s("책을 빌리러 왔다.\n\n");  getchar();
+		printf_s("음...정말 많은 책들이 있네.\n");  getchar();
+		printf_s("아니, ㅇ...이것은!!!\n");  getchar();
+		printf_s("1000원을 획득했다!!(운 + 300)\n"); getchar();
+		Money += 10000;
+		Luck += 300;
+		Stat_Limit(Luck);
+		printf("득템!!!!!!"); getchar();
+		break;
+	case(1) :
+		printf_s("금일 중앙도서관은 휴무입니다.\n");  getchar();
+		printf_s("..");  getchar();
+		printf_s("..\n"); getchar();
+		printf_s("ㅠㅠ\n");  getchar();
+		Luck -= 100;
+		Stat_Limit(Luck);
+		printf_s("운 -100 감소\n"); getchar();
+		break;
+	case(2) :
+		printf_s("무엇을 하지??\n"); getchar();
+		printf_s("1. 책을 읽는다.(지력 + 100)\n\n2. 혼자서 공부를 한다.(+50)\n");
+		scanf_s("%d", &choise);
+		switch (choise) {
+		case 1:
+			system("cls");
+			printf_s("개미는~~~~~\n\n");  getchar();
+			printf_s("빠 밤~~\n");  getchar();
+			printf_s("오늘도~~~~\n"); getchar();
+			printf_s("빠 밤~~~\n");  getchar();
+			printf_s("열심히~~~~~\n");  getchar();
+			printf_s("일을~~ 하~~네~~\n\n");  getchar();
+			printf_s("과로사!!!!!!\n\n"); getchar();
+			Intel += 100;	Stat_Limit(Intel);
+			Luck += 50; Stat_Limit(Luck);
+			printf_s("재밌었다. 읽는 보람이 있는 책이었다."); getchar();
+			break;
+		case 2:
+			system("cls");
+			printf_s("공부를 하는 중...\n");  getchar();
+			printf_s("머리가 아파온다ㅠㅠ\n");  getchar();
+			printf_s("역시 공부는 몸에 해로워.(체력 - 100)\n"); getchar();
+			Intel += 50; Stamina -= 100;
+			break;
+		}
+		break;
+	}
+}//중앙도서관 입장 시 대화
 
 void sleep()
 {
@@ -128,13 +223,14 @@ void sleep()
 			return;
 		}
 	}
-	if (class_pro == 1)
+	if (class_pro >= 1)
 	{
 
 		printf("자는중~\n");
 		system("PAUSE");
 		test = 0;
-		class_pro--;
+		class_pro = 0;
+		D_meal = 0;
 		day++;
 		Stamina += Stat_max / 2;
 		Stat_Limit(Stamina);//여기에 잠자기 했을때 일어나는 상황
@@ -169,10 +265,10 @@ home: {
 	printf_s("기숙사 입니다               날짜: %d 일\n\n", day);
 	if (day == 60 || day == 60 + 72 || day == 60 + 72 + 72 || day == 60 + 72 + 72 + 72)
 	{
-		printf("오늘은 시험을 보는날입니다 공대4호관 교실로 가십시요\n\n");
+		printf("오늘은 시험을 보는 날입니다. 공대4호관 교실로 가세요.\n\n");
 		if (Intel <= 500)
 		{
-			printf("어디선가 자신감이 솓구친다\n\n");
+			printf("어디선가 자신감이 솟구친다!!\n\n");
 		}
 	}
 	printf_s("1. 잠자기 \n\n2. 밥먹기\n\n3. 밖으로 나가기\n\n4. 스텟보기\n\n");
@@ -190,11 +286,46 @@ home: {
 		system("cls");
 		return;
 	case(2) :
-		system("cls");
-		Stamina += 150;
-		Stat_Limit(Stamina);
-		printf("Stamina + 150 증가 ! !\n\n");
-		system("PAUSE");//여기에 밥먹기 했을때 일어나는 상황
+		system("cls"); getchar();
+		if (Stamina >= Stat_max) {
+			printf("배부른데...\n"); getchar();
+			printf("먹을까? 말까?\n"); getchar();
+			printf("1. 먹는다\n\n2. 먹지않는다\n"); 
+			scanf_s("%d", &choise);
+			switch(choise) {
+				case 1:
+					system("cls"); getchar();
+					printf("우웨에에에에에에에에에웨에에에에에에엑\n"); getchar();
+					printf("억지로 밥을 먹어 역효과가 나타났습니다.(체력 - 100, 지력 - 150, 매력 -50)\n"); getchar();
+					Stamina -= 100;
+					Intel -= 150;
+					Beauty -= 50;
+					Stat_Limit(Stamina);
+					Stat_Limit(Intel);
+					Stat_Limit(Beauty);
+					D_meal++;
+					system("pause");
+					break;
+				case 2:
+					system("cls"); getchar();
+					printf("그래, 과식은 몸에 좋지않아.\n"); getchar();
+					system("pause");
+					break;
+			}
+		}//체력이 full인 상태에서 밥을 먹었을 때 일어나는 상황
+		else
+		{
+			if (D_meal >= 1) {
+				printf("오늘 먹을 수 있는 횟수를 초과하였습니다.\n");
+			}
+			else {
+				Stamina += 150;
+				Stat_Limit(Stamina);
+				printf("체력 + 150 증가 ! !\n\n");
+				D_meal++;
+			}
+			system("PAUSE");//밥먹기 했을때 일어나는 상황
+		}
 		goto home;
 	case(3) :
 		system("PAUSE");
@@ -240,7 +371,7 @@ home: {
 		  system("PAUSE");
 		  goto school;
 	  }
-  }
+  }//학교
 	  cafe: {
 		  system("cls");
 		  printf_s("신관입니다\n\n");
@@ -261,7 +392,7 @@ home: {
 			  system("PAUSE");
 			  goto cafe;
 		  }
-	  }
+	  }//신관
 		food: {
 			system("cls");
 			printf_s("식당입니다   현재 남은 돈 : %d\n\n", Money);
@@ -312,19 +443,20 @@ home: {
 				system("PAUSE");
 				goto food;
 			}
-		}
+		}//학생식당
 		  club: {
 			  system("cls");
-			  printf_s("동아리방입니다\n\n");  getchar();
+			  printf_s("동아리방입니다\n\n");
+			  system("cls");
 			  talk();
 			  system("PAUSE");
 			  goto cafe;
-		  }
+		  }//동아리방
 			classroom: {
 				system("cls");
 				printf_s("교양동 입니다\n\n");
 				printf("무엇을 하시겠습니까?\n\n");
-				printf_s("1. 수업 듣기(체력 200감소, 지능 45 증가\n\n2. 밖으로 나가기\n\n9. 스텟보기\n\n");
+				printf_s("1. 수업 듣기(체력 200감소, 지능 45 증가)\n\n2. 밖으로 나가기\n\n3. 스텟보기\n\n");
 				scanf_s("%d", &choise);
 				switch (choise)
 				{
@@ -340,19 +472,19 @@ home: {
 					printf(".\n.\n수업이 끝났습니다.\n\n");  system("PAUSE");
 				case(2) :
 					goto school;
-				case(9) :
+				case(3) :
 					system("cls");
 					stat();//캐릭터 정보보기
 					system("PAUSE");
 					goto classroom;
 				}
-			}
+			}//교양동
 					   //공대에서 주로 진행
 				   eng_univ: {
 					   system("cls");
 					   printf_s("공대4호관 입니다\n\n");
 					   printf("어디로 가시겠습니까?\n\n");
-					   printf("1. 교실\n\n2. 과방\n\n3. 돌아간다.\n\n9. 스탯보기\n\n");
+					   printf("1. 교실\n\n2. 과방\n\n3. 돌아간다.\n\n4. 스탯보기\n\n");
 					   scanf_s("%d", &choise);
 					   switch (choise)
 					   {
@@ -362,7 +494,7 @@ home: {
 						   goto eng_room;
 					   case(3) :
 						   goto school;
-					   case(9) :
+					   case(4) :
 						   system("cls");
 						   stat();//캐릭터 정보보기
 						   system("PAUSE");
@@ -381,7 +513,7 @@ home: {
 					   printf_s("교실 입니다\n\n");
 					   system("PAUSE");
 					   goto eng_univ;
-				   }
+				   }//공대 4호관 강의실
 						  eng_room: {
 							  system("cls"); getchar();
 							  printf("과방입니다.\n"); getchar();
@@ -390,12 +522,14 @@ home: {
 							  system("PAUSE");
 							  class_pro++;
 							  goto eng_univ;
-						  }
-								lib: {
-									system("cls");
-									printf_s("중앙 도서관 입니다\n\n");
-								}
-				   }
+						  }//과방
+				   }//공대 4호관
+						 lib: {
+							 system("cls");
+							 lib_talk();
+							 system("pause");
+							 goto school;
+						 }//중앙도서관
 }
 //평일
 void weekend()
@@ -440,6 +574,7 @@ void weekend()
 //주말
 void vacation()
 {
+	system("cls");
 	printf("방학이에염\n");
 	day++;
 	system("pause");
@@ -475,7 +610,7 @@ void endings() {
 		{
 			if (2000 <= sum <= 3200) {
 				printf("졸업이 코앞이다.\n"); getchar();
-				printf("그전에 밀린 과제를 해야지\n"); getchar();
+				printf("그전에 밀린 과제를 해야지ㅎㅎ\n"); getchar();
 				printf("."); getchar();
 				printf("."); getchar();
 				printf("..엌!!\n"); getchar();
@@ -523,6 +658,7 @@ void endings() {
 void main()
 {
 	setname();
+
 	while (day != 144)
 	{
 		if (day % 72 <= 60)

@@ -1,0 +1,14 @@
+﻿빌드 시작: 2016-06-10 오후 11:01:32
+     1>2 노드의 "C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\mainbeta.vcxproj" 프로젝트(Build 대상)입니다.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt "게임.cpp"
+         게임.cpp
+     1>c:\users\unguys33\c-c-player-s-journey---project\maingame\mainbeta\게임.cpp(611): warning C4804: '<=': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\x64\Debug\mainbeta.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\x64\Debug\mainbeta.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\x64\Debug\mainbeta.lib" /MACHINE:X64 "x64\Debug\게임.obj"
+         mainbeta.vcxproj -> C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\x64\Debug\mainbeta.exe
+     1>"C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\mainbeta.vcxproj" 프로젝트를 빌드했습니다(Build 대상).
+
+빌드했습니다.
+
+경과 시간: 00:00:00.55
