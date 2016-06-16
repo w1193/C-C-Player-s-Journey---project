@@ -1,4 +1,4 @@
-﻿빌드 시작: 2016-06-10 오후 11:01:32
+﻿빌드 시작: 2016-06-15 오후 2:00:05
      1>2 노드의 "C:\Users\UNGUYS33\C-C-Player-s-Journey---project\Maingame\mainbeta\mainbeta.vcxproj" 프로젝트(Build 대상)입니다.
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt "게임.cpp"
@@ -11,4 +11,4 @@
 
 빌드했습니다.
 
-경과 시간: 00:00:00.55
+경과 시간: 00:00:02.26
